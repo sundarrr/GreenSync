@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Green Sync</title>
+    {% load static %}
+    {% include 'ecom/v2/load_css.html' %}
+</head>
+
+<body>
+{% include 'ecom/v2/header.html' %}
+<div class="container">
+    <div class="row justify-content-center" style="padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <div class="col-sm-2 col-md-2 text-center">
+            <img src="{% static customer.profile_pic.url %}" alt="profile pic" class="img-rounded img-responsive" style="width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); margin-bottom: 10px;" />
+            <blockquote style="margin-top: 20px;">
+                <p style="font-weight: bold;">Name: {{ request.user }}</p>
+                <small><cite title="Source Title">Address: {{ customer.address }} <i class="glyphicon glyphicon-map-marker"></i></cite></small>
+            </blockquote>
+            <p><i class="glyphicon glyphicon-phone"></i>Phone: {{ customer.mobile }}</p>
+
+<div style="text-align: center; margin: 20px;">
+    <a href="/edit-profile">
+        <button class="btn btn-primary" style="padding: 10px 20px; border-radius: 5px;">
+            <span>Edit Profile</span>
+        </button>
+    </a>
+</div>
+        </div>
+    </div>
+</div>
+<br>
+
+
+{% include 'ecom/v2/footer.html' %}
+{% include 'ecom/v2/js.html' %}
+</body>
+
+</html>

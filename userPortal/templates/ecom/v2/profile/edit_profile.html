@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Green Sync</title>
+    {% load static %}
+    {% include 'ecom/v2/load_css.html' %}
+</head>
+
+<body>
+{% include 'ecom/v2/header.html' %}
+<div class="container register-form"
+     style="background: #fff; margin-top: 50px; padding: 50px; border-radius: 10px; box-shadow: 0px 0px 20px 0px #0000001a;">
+    <div class="form">
+        <h3 class="text-center" style="margin-bottom: 20px;">Edit Profile</h3>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            {% render_field userForm.first_name class="form-control" placeholder="First Name" id="first_name" style="border-radius: 5px; margin-bottom: 15px; padding: 10px;" %}
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            {% render_field userForm.username class="form-control" placeholder="Username" id="username" style="border-radius: 5px; margin-bottom: 15px; padding: 10px;" %}
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile">Mobile</label>
+                            {% render_field customerForm.mobile class="form-control" placeholder="Mobile" id="mobile" style="border-radius: 5px; margin-bottom: 15px; padding: 10px;" %}
+                        </div>
+                        <div class="form-group">
+                            <label for="profile_pic">Profile Picture</label>
+                            {% render_field customerForm.profile_pic class="form-control" placeholder="Profile Picture" id="profile_pic" style="border-radius: 5px; margin-bottom: 15px; padding: 10px;" %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            {% render_field userForm.last_name class="form-control" placeholder="Last Name" id="last_name" style="border-radius: 5px; margin-bottom: 15px; padding: 10px;" %}
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            {% render_field userForm.password class="form-control" placeholder="Password" id="password" style="border-radius: 5px; margin-bottom: 15px; padding: 10px;" %}
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            {% render_field customerForm.address class="form-control" placeholder="Address" id="address" style="border-radius: 5px; margin-bottom: 15px; padding: 10px;" %}
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btnSubmit"
+                        style="width: 100%; border: none; padding: 10px; border-radius: 5px; background: #007bff; color: #fff; font-weight: bold; font-size: 1.2em;">
+                    Edit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'ecom/v2/footer.html' %}
+{% include 'ecom/v2/js.html' %}
+</body>
+
+</html>
