@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Green Sync</title>
+    {% load static %}
+    {% include 'ecom/v2/load_css.html' %}
+</head>
+
+<body>
+
+{% include 'ecom/v2/header_admin.html' %}
+<form method="post" class="d-flex flex-column align-items-center justify-content-center">
+    {% csrf_token %}
+    <div class="container register-form">
+        <div class="form">
+            <div class="note text-center">
+                <p class="h4"><i class="fa fa-edit"></i> Update Status Of Order</p>
+            </div>
+
+            <br><br>
+            <div class="form-content d-flex flex-column align-items-center justify-content-center"
+                 style="display: flex !important; align-items: center !important; justify-content: center !important;">
+                {% render_field orderForm.status class="form-control" placeholder="Status" %}
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success mt-3"><i class="fa fa-check"></i> Update</button>
+</form>
+
+
+<br><br>
+{% include 'ecom/v2/footer.html' %}
+{% include 'ecom/v2/js.html' %}
+</body>
+
+</html>

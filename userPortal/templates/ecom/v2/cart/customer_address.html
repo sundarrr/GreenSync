@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Green Sync</title>
+    {% load static %}
+    {% include 'ecom/v2/load_css.html' %}
+</head>
+
+<body>
+{% include 'ecom/v2/header_after_login.html' %}
+<form method="post" style="max-width: 600px; margin: auto; background: #f9f9f9; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+  {% csrf_token %}
+  <ul style="list-style: none; padding: 0;">
+    <li style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Email <span style="color: red;">*</span></label>
+        {% render_field addressForm.Email class="form-control" placeholder="Email" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" %}
+    </li>
+    <li style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Mobile <span style="color: red;">*</span></label>
+        {% render_field addressForm.Mobile class="form-control" placeholder="Mobile" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" %}
+    </li>
+    <li style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Shipment Address <span style="color: red;">*</span></label>
+        {% render_field addressForm.Address id="field5" class="form-control" placeholder="Building Number, City, PIN" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" %}
+    </li>
+    <li>
+        <input type="submit" value="Proceed To Pay" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;" />
+    </li>
+  </ul>
+</form>
+
+<br><br><br>
+
+{% include 'ecom/v2/footer.html' %}
+{% include 'ecom/v2/js.html' %}
+</body>
+
+</html>
+
