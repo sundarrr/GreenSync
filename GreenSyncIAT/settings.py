@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'betterforms',
+    'crispy_bootstrap4',
     'mapbox_location_field',
 ]
 

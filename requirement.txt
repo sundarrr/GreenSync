@@ -4,6 +4,8 @@ django-ckeditor
 django-mapbox-location-field
 django-betterforms
 django-crispy-forms
+crispy-bootstrap4
+django-ckeditor
 #==3.0.5
 django-widget-tweaks
 #sqlparse==0.3.1

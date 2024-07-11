@@ -30,7 +30,7 @@ urlpatterns = [
     path('e_dashboard/', dashboard, name='dashboard'),
     path('e_login/', login_page, name='login'),
     path('e_logout/', logut_page, name='logout'),
-
+    path('ckeditor/', include('ckeditor_uploader.urls')),
     path('', include('userPortal.urls')),
 
     path('admin/', admin.site.urls),
