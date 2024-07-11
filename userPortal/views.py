@@ -168,8 +168,14 @@ def update_order_view(request, pk):
 
 def search_view(request):
     # whatever user write in search box we get in query
-    query = request.GET['query']
-    products = models.Product.objects.all().filter(name__icontains=query)
+    query = request.GET.get('query', "")
+    category = request.GET.get('category', "")
+    if len(category) > 0:
+        products = models.Product.objects.filter(category__name__icontains=category)
+    else:
+        products = models.Product.objects.all().filter(name__icontains=query)
+
+    categories = models.Category.objects.all()
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
         counter = product_ids.split('|')
@@ -183,10 +189,11 @@ def search_view(request):
     if request.user.is_authenticated:
         # return render(request,'ecom/customer_home.html',{'products':products,'word':word,'product_count_in_cart':product_count_in_cart})
         return render(request, 'ecom/v2/home/customer_home.html',
-                      {'products': products, 'word': word, 'product_count_in_cart': product_count_in_cart})
+                      {'products': products, 'word': word, 'product_count_in_cart': product_count_in_cart,
+                       'categories': categories})
     return render(request, 'ecom/v2/home/index.html',
-                  {'products': products, 'word': word, 'product_count_in_cart': product_count_in_cart})
-
+                  {'products': products, 'categories': categories, 'word': word,
+                   'product_count_in_cart': product_count_in_cart})
 
 # any one can add product to cart, no need of signin
 def add_to_cart_view(request, pk):
@@ -290,6 +297,7 @@ def remove_from_cart_view(request, pk):
 @user_passes_test(is_customer)
 def customer_home_view(request):
     products = models.Product.objects.all()
+    categories = models.Category.objects.all()
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
         counter = product_ids.split('|')
@@ -298,7 +306,7 @@ def customer_home_view(request):
         product_count_in_cart = 0
     # return render(request,'ecom/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
     return render(request, 'ecom/v2/home/customer_home.html',
-                  {'products': products, 'product_count_in_cart': product_count_in_cart})
+                  {'products': products, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
 
 # shipment address before placing order
@@ -454,10 +462,9 @@ def edit_profile_view(request):
             return HttpResponseRedirect('my-profile')
     return render(request, 'ecom/v2/profile/edit_profile.html', context=mydict)
 
-
 def dashboard(request):
-    return render(request, 'ecom/v2/home/user-dashboard.html')
-
+    categories = models.Category.objects.all()
+    return render(request, 'ecom/v2/home/user-dashboard.html',{'categories':categories})
 
 def add_category_view(request):
     if request.method == 'POST':

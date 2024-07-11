@@ -25,17 +25,20 @@
                     </div>
                     <ul>
 
-                        <li><a href="/search?query=tomato">Tomato</a></li>
-                        <li><a href="#">Vegetables</a></li>
-                        <li><a href="#">Fruit & Nut Gifts</a></li>
-                        <li><a href="#">Fresh Berries</a></li>
-                        <li><a href="#">Ocean Foods</a></li>
-                        <li><a href="#">Butter & Eggs</a></li>
-                        <li><a href="#">Fastfood</a></li>
-                        <li><a href="#">Fresh Onion</a></li>
-                        <li><a href="#">Papayaya & Crisps</a></li>
-                        <li><a href="#">Oatmeal</a></li>
-                        <li><a href="#">Fresh Bananas</a></li>
+        {% for category in categories %}
+            <li><a href="#">{{ category.name }}</a></li>
+        {% endfor %}
+{#                        <li><a href="/search?query=tomato">Tomato</a></li>#}
+{#                        <li><a href="#">Vegetables</a></li>#}
+{#                        <li><a href="#">Fruit & Nut Gifts</a></li>#}
+{#                        <li><a href="#">Fresh Berries</a></li>#}
+{#                        <li><a href="#">Ocean Foods</a></li>#}
+{#                        <li><a href="#">Butter & Eggs</a></li>#}
+{#                        <li><a href="#">Fastfood</a></li>#}
+{#                        <li><a href="#">Fresh Onion</a></li>#}
+{#                        <li><a href="#">Papayaya & Crisps</a></li>#}
+{#                        <li><a href="#">Oatmeal</a></li>#}
+{#                        <li><a href="#">Fresh Bananas</a></li>#}
                     </ul>
                 </div>
             </div>
