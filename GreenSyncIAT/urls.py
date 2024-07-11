@@ -32,6 +32,5 @@ urlpatterns = [
     path('e_logout/', logut_page, name='logout'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('', include('userPortal.urls')),
-
     path('admin/', admin.site.urls),
 ]
