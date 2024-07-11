@@ -21,7 +21,8 @@ from .models import (
     EventCategory,
     Event,
     EventMember,
-    EventUserWishList
+    EventUserWishList,
+    UserCoin
 
 )
 
