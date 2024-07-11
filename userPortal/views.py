@@ -26,16 +26,14 @@ def home_view(request):
     else:
         product_count_in_cart = 0
     if request.user.is_authenticated:
-        return HttpResponseRedirect('afterlogin')
+        return HttpResponseRedirect('customer-home')
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'product_count_in_cart': product_count_in_cart})
 
 
-# for showing login button for admin(by sumit)
 def adminclick_view(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect('afterlogin')
-    return HttpResponseRedirect('adminlogin')
+        return HttpResponseRedirect('admin-dashboard')
 
 
 def customer_signup_view(request):
@@ -63,11 +61,11 @@ def is_customer(user):
     return user.groups.filter(name='CUSTOMER').exists()
 
 
-def afterlogin_view(request):
-    if is_customer(request.user):
-        return redirect('customer-home')
-    else:
-        return redirect('admin-dashboard')
+# def afterlogin_view(request):
+#     if is_customer(request.user):
+#         return redirect('customer-home')
+#     else:
+#         return redirect('admin-dashboard')
 
 
 @login_required(login_url='adminlogin')
