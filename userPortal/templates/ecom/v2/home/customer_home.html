@@ -6,11 +6,11 @@
     <meta charset="UTF-8">
     <title>Green Sync</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
 <body>
-{% include 'ecom/v2/header_after_login.html' %}
+{% include 'ecom/v2/base/header_after_login.html' %}
 
 
 <!-- Hero Section Begin -->
@@ -24,7 +24,8 @@
                         <span>All departments</span>
                     </div>
                     <ul>
-                        <li><a href="#">Fresh Meat</a></li>
+
+                        <li><a href="/search?query=tomato">Tomato</a></li>
                         <li><a href="#">Vegetables</a></li>
                         <li><a href="#">Fruit & Nut Gifts</a></li>
                         <li><a href="#">Fresh Berries</a></li>
@@ -42,7 +43,7 @@
 
                 <div style="margin-bottom: -45px;width: 100%; display: flex; justify-content: center; align-items: center;">
                     <div style="width: 100%; max-width: 600px;">
-                        {% include 'ecom/v2/search.html' %}
+                        {% include 'ecom/v2/base/search.html' %}
                     </div>
                 </div>
 
@@ -105,8 +106,8 @@
 </section>
 
 
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>

@@ -2,6 +2,8 @@ Django
 xhtml2pdf
 django-ckeditor
 django-mapbox-location-field
+django-betterforms
+django-crispy-forms
 #==3.0.5
-#django-widget-tweaks==1.4.8
+django-widget-tweaks
 #sqlparse==0.3.1

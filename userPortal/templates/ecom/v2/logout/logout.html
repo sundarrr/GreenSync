@@ -6,12 +6,12 @@
     <meta charset="UTF-8">
     <title>Green Sync</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
 <body>
 
-{% include 'ecom/v2/header.html' %}
+{% include 'ecom/v2/base/header.html' %}
 
 <br><br><br>
 <div class="d-flex flex-column align-items-center justify-content-center">
@@ -19,8 +19,8 @@
     <img src="{% static "images/logout_img.png" %}">
 </div>
 <br><br>
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>

@@ -16,44 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.contrib import admin
-from django.urls import path
 from userPortal import views
 from django.contrib.auth.views import LoginView, LogoutView
 
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path, include
+from adminPortal.views import dashboard, login_page, logut_page
+
 urlpatterns = [
+    # Event management routes
+    path('e_admin/', include('adminPortal.urls')),
+    path('e_dashboard/', dashboard, name='dashboard'),
+    path('e_login/', login_page, name='login'),
+    path('e_logout/', logut_page, name='logout'),
+
+    path('', include('userPortal.urls')),
+
     path('admin/', admin.site.urls),
-    path('', views.home_view, name=''),
-    path('afterlogin', views.afterlogin_view, name='afterlogin'),
-    path('logout', LogoutView.as_view(template_name='ecom/v2/logout/logout.html'), name='logout'),
-    path('dashboard', views.dashboard),
-    path('search', views.search_view, name='search'),
-
-    path('adminclick', views.adminclick_view),
-    path('adminlogin', LoginView.as_view(template_name='ecom/v2/login/admin_login.html'), name='adminlogin'),
-    path('admin-dashboard', views.admin_dashboard_view, name='admin-dashboard'),
-
-    path('admin-products', views.admin_products_view, name='admin-products'),
-    path('admin-add-product', views.admin_add_product_view, name='admin-add-product'),
-    path('delete-product/<int:pk>', views.delete_product_view, name='delete-product'),
-    path('update-product/<int:pk>', views.update_product_view, name='update-product'),
-
-    path('admin-view-booking', views.admin_view_booking_view, name='admin-view-booking'),
-    path('delete-order/<int:pk>', views.delete_order_view, name='delete-order'),
-    path('update-order/<int:pk>', views.update_order_view, name='update-order'),
-
-    path('customersignup', views.customer_signup_view),
-    path('customerlogin', LoginView.as_view(template_name='ecom/v2/login/customer_login.html'), name='customerlogin'),
-    path('customer-home', views.customer_home_view, name='customer-home'),
-    path('my-order', views.my_order_view, name='my-order'),
-    path('my-profile', views.my_profile_view, name='my-profile'),
-    path('edit-profile', views.edit_profile_view, name='edit-profile'),
-    path('download-invoice/<int:orderID>/<int:productID>', views.download_invoice_view, name='download-invoice'),
-
-    path('add-to-cart/<int:pk>', views.add_to_cart_view, name='add-to-cart'),
-    path('cart', views.cart_view, name='cart'),
-    path('remove-from-cart/<int:pk>', views.remove_from_cart_view, name='remove-from-cart'),
-    path('customer-address', views.customer_address_view, name='customer-address'),
-    path('payment-success', views.payment_success_view, name='payment-success'),
-
 ]
