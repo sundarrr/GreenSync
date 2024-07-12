@@ -100,7 +100,6 @@ def admin_products_view(request):
     products = models.Product.objects.all()
     return render(request, 'ecom/v2/admin/admin_products.html', {'products': products})
 
-
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
 def admin_add_product_view(request):
@@ -111,7 +110,6 @@ def admin_add_product_view(request):
             productForm.save()
         return HttpResponseRedirect('admin-products')
     return render(request, 'ecom/v2/admin/admin_add_products.html', {'productForm': productForm})
-
 
 @login_required(login_url='adminlogin')
 def delete_product_view(request, pk):

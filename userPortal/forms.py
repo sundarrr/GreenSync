@@ -27,14 +27,6 @@ class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
         self.fields['category'].queryset = Category.objects.all()
-class ProductForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = ['name', 'price', 'description', 'product_image', 'category']
-
-    def __init__(self, *args, **kwargs):
-        super(ProductForm, self).__init__(*args, **kwargs)
-        self.fields['category'].queryset = Category.objects.all()
 
 # address of shipment
 class AddressForm(forms.Form):
