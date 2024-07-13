@@ -32,7 +32,8 @@ from .views import (
     add_category_view,
     update_category_view,
     delete_category_view,
-admin_categories_view
+    admin_categories_view,
+    autosuggest
 )
 
 urlpatterns = [
@@ -41,6 +42,7 @@ urlpatterns = [
     path('logout', LogoutView.as_view(template_name='ecom/v2/logout/logout.html'), name='logout'),
     path('dashboard', dashboard),
     path('search', search_view, name='search'),
+    path('autosuggest/', autosuggest, name='autosuggest'),
 
     path('adminclick', adminclick_view),
     path('adminlogin', LoginView.as_view(template_name='ecom/v2/login/admin_login.html'), name='adminlogin'),

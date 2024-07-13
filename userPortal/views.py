@@ -17,6 +17,11 @@ from .models import Category
 from .forms import CategoryForm
 
 
+
+from django.http.response import (
+    JsonResponse
+ )
+
 def home_view(request):
     products = models.Product.objects.all()
     if 'product_ids' in request.COOKIES:
@@ -225,6 +230,11 @@ def add_to_cart_view(request, pk):
 
     return response
 
+def autosuggest(request):
+    query = request.GET.get('query', '')
+    products = models.Product.objects.filter(name__icontains=query)
+    suggestions = [product.name for product in products]
+    return JsonResponse(suggestions, safe=False)
 
 # for checkout of cart
 def cart_view(request):
