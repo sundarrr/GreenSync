@@ -1,0 +1,101 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    <style>
+        .small-font {
+            font-size: 0.875rem; /* Adjust the size as needed */
+        }
+        .comment-heading {
+            font-size: 1rem; /* Adjust the size as needed */
+        }
+        .comment-form textarea {
+            width: 300px; /* Adjust the width as needed */
+        }
+        .hidden {
+            display: none;
+        }
+        .comment {
+            border-bottom: .5px solid #b6c2d7; /* Light grey line */
+            padding: 2px; /* Space inside the comment box */
+            margin-bottom: 3px; /* Space between comments */
+            background-color: #d9edf7; /* Light blue background color */
+            border-radius: 2px; /* Rounded corners */
+        }
+    </style>
+
+    {% for post in posts %}
+        <div class="jumbotron mt-3 bg-white shadow-lg">
+            <article class="media content-section shadow">
+                <a href="{{ post.author.profile_pic }}" target="_blank">
+                    <img src="{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
+                </a>
+                <div class="media-body">
+                    <div class="article-metadata d-flex justify-content-between">
+                        <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}"><h3>{{ post.author }}</h3></a>
+                        <small class="text-muted">{{ post.date_upload|date:"F d, Y" }}</small>
+                    </div>
+                    {% if post.file %}
+                        <a href="{{ post.file.url }}" download class="text-dark text-justify"><h5>{{ post.blog }}</h5></a>
+                    {% endif %}
+                    <h2><a class="article-title text-justify" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+                    <div class="d-flex justify-content-between">
+                        <p class="article-content text-justify text-truncate overflow-hidden">{{ post.content }}</p>
+                        {% if post.file %}
+                            <div class="form-group mt-0 pt-0 m-2">
+                                <a class="btn btn-outline-primary btn-d" href="{{ post.file.url }}" download type="submit"><i class="fas fa-download"></i></a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            
+            <div class="comments-section">
+                <h2 class="comment-heading">Comments on this post</h2>
+                <form method="POST" class="comment-form">
+                    {% csrf_token %}
+                    {{ comment_form.as_p }}
+                </form>
+                {% for comment in comments %}
+                    {% if comment.post.id == post.id %}
+                        <div class="comment small-font {% if not forloop.first %}hidden{% endif %}">
+                            <strong>{{ comment.author }}</strong>
+                            <p>{{ comment.content }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% if comments|length > 1 %}
+                    <button class="btn btn-outline-info mt-2" onclick="toggleComments(this)">Expand</button>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+    {% endif %}
+
+    <script>
+        function toggleComments(button) {
+            var comments = button.closest('.comments-section').querySelectorAll('.comment');
+            comments.forEach(function(comment, index) {
+                if (index !== 0) { // Skip the first comment
+                    comment.classList.toggle('hidden');
+                }
+            });
+            button.innerText = button.innerText === 'Expand' ? 'Collapse' : 'Expand';
+        }
+    </script>
+{% endblock content %}
