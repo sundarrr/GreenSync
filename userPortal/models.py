@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pic/CustomerProfilePic/', null=True, blank=True)
+    profile_pic = models.ImageField(upload_to='static/images/', default='user.png',null=True, blank=True)
     address = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20, null=False)
 
@@ -18,7 +18,7 @@ class Customer(models.Model):
         return self.user.id
 
     def __str__(self):
-        return self.user.first_name
+        return self.user.username
 
 
 class Product(models.Model):
@@ -53,3 +53,25 @@ class Orders(models.Model):
     mobile = models.CharField(max_length=20, null=True)
     order_date = models.DateField(auto_now_add=True, null=True)
     status = models.CharField(max_length=50, null=True, choices=STATUS)
+
+
+#QA Forum models
+class Post(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    date_posted = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='files/', blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
+    author = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    content = models.TextField()
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Comment by {self.author} on {self.post}'

@@ -6,7 +6,7 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 Examples:
 Function views
     1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+    2. Add a URL to urlpatterns:  path('', home, name='home')
 Class-based views
     1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
@@ -29,6 +29,7 @@ urlpatterns = [
     path('e_admin/', include('adminPortal.urls')),
     path('e_dashboard/', dashboard, name='dashboard'),
     path('e_login/', login_page, name='login'),
+
     path('e_logout/', logut_page, name='logout'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('', include('userPortal.urls')),

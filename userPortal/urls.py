@@ -33,6 +33,17 @@ from .views import (
     update_category_view,
     delete_category_view,
     admin_categories_view,
+    PostListView,
+    PostDetailView,
+    PostCreateView,
+    PostUpdateView,
+    PostDeleteView,
+    UserPostListView,
+    post_detail,
+    about,
+    home,
+    search,
+    admin_categories_view,
     autosuggest
 )
 
@@ -77,4 +88,13 @@ urlpatterns = [
     path('update-category/<int:pk>/', update_category_view, name='update-category'),
     path('delete-category/<int:pk>/', delete_category_view, name='delete-category'),
     # Add other URLs here
+
+    path('forum', home, name='blog-home'),
+    path('user/<str:username>', UserPostListView.as_view(), name='user-posts'),
+    path('post/<int:pk>/', post_detail, name='post-detail'),
+    path('post/new/', PostCreateView.as_view(), name='post-create'),
+    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
+    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+    path('about/', about, name='blog-about'),
+    path('search/', search, name='search'),
 ]
