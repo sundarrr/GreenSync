@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, reverse
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.conf import settings
@@ -15,6 +15,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Comment, Customer
 from .forms import CategoryForm, ReplyForm, CommentForm
+from .models import Category
+from .forms import CategoryForm
+from adminPortal.models import Event, EventCategory
 
 #QA Forum
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -44,7 +47,14 @@ def home_view(request):
         return HttpResponseRedirect('customer-home')
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'product_count_in_cart': product_count_in_cart})
-
+def event_view(request):
+    events = Event.objects.all()
+    categories = EventCategory.objects.all()
+    context = {
+        'events': events,
+        'categories': categories,
+    }
+    return render(request, 'ecom/v2/home/events.html', context)
 
 def adminclick_view(request):
     if request.user.is_authenticated:
@@ -457,7 +467,7 @@ def download_invoice_view(request, orderID, productID):
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
 def my_profile_view(request):
-    customer = Customer.objects.get(user__id=request.user.id)
+    customer = models.Customer.objects.get(user_id=request.user.id)
     return render(request, 'ecom/v2/profile/my_profile.html', {'customer': customer})
 
 

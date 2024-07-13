@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+{% load static %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Green Sync - Events</title>
+    {% include 'ecom/v2/base/load_css.html' %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+{% if user.is_authenticated %}
+    {% include 'ecom/v2/base/header_after_login.html' %}
+{% else %}
+    {% include 'ecom/v2/base/header.html' %}
+{% endif %}
+
+<section id="events-page-hero" class="hero">
+    <div id="events-page-container" class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="hero__categories">
+                    <div class="hero__categories__all">
+                        <i class="fa fa-bars"></i>
+                        <span>All departments</span>
+                    </div>
+                    <ul>
+                        {% for category in categories %}
+                            <li><a href="#">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-9">
+                <div style="margin-bottom: -45px; width: 100%; display: flex; justify-content: center; align-items: center;">
+                    <div style="width: 100%; max-width: 600px;">
+                        {% include 'ecom/v2/base/search.html' %}
+                    </div>
+                </div>
+
+                <!-- Adjust the position of the Events text -->
+                <h3 id="events-title" style="text-align:center; color:green;">Events</h3>
+
+                <br>
+                <section class="featured spad" style="padding: 50px 0;">
+                    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+                        <div class="row featured__filter">
+                            {% for event in events %}
+                                <div class="col-lg-3 col-md-4 col-sm-6 mix">
+                                    <div class="featured__item" id="event-item-{{ event.id }}">
+                                        <div class="featured__item__pic set-bg" data-setbg="{% static event.category.image.url %}">
+                                            <ul class="featured__item__pic__hover">
+                                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
+                                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                                <li>
+                                                    <label for="toggle-{{ event.id }}">
+                                                        <i class="fa fa-info-circle"></i>
+                                                    </label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <input type="checkbox" id="toggle-{{ event.id }}" class="toggle-details">
+                                        <div class="featured__item__text" style="padding: 20px; text-align: center;">
+                                            <h6><a href="#" style="color: #000; text-decoration: none;">{{ event.name }}</a></h6>
+                                            <h5>{{ event.start_date }}</h5>
+                                            <div id="event-details-{{ event.id }}" class="event-details">
+                                                <p>{{ event.description|safe }}</p>
+                                                <p><strong>Venue:</strong> {{ event.venue }}</p>
+                                                <p><strong>End Date:</strong> {{ event.end_date }}</p>
+                                                <p><strong>Maximum Attendees:</strong> {{ event.maximum_attende }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
+</body>
+</html>

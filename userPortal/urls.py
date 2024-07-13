@@ -44,17 +44,17 @@ from .views import (
     home,
     search,
     admin_categories_view,
-    autosuggest
+    autosuggest,
+    event_view
 )
 
 urlpatterns = [
     path('', home_view, name=''),
-    # path('afterlogin', afterlogin_view, name='afterlogin'),
     path('logout', LogoutView.as_view(template_name='ecom/v2/logout/logout.html'), name='logout'),
     path('dashboard', dashboard),
-
     path('search', search_view, name='search'),
     path('autosuggest/', autosuggest, name='autosuggest'),
+    path('events/', event_view, name='events'),
 
     path('adminclick', adminclick_view),
     path('adminlogin', LoginView.as_view(template_name='ecom/v2/login/admin_login.html'), name='adminlogin'),
