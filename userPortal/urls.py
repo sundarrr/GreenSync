@@ -7,7 +7,7 @@ from .views import (
     admin_dashboard_view,
     admin_products_view,
     admin_view_booking_view,
-    # afterlogin_view,
+    afterlogin_view,
     add_to_cart_view,
     cart_view,
     customer_address_view,
@@ -50,6 +50,7 @@ from .views import (
 
 urlpatterns = [
     path('', home_view, name=''),
+    path('afterlogin', afterlogin_view, name='afterlogin'),
     path('logout', LogoutView.as_view(template_name='ecom/v2/logout/logout.html'), name='logout'),
     path('dashboard', dashboard),
     path('search', search_view, name='search'),

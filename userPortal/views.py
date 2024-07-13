@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Comment, Customer
 from .forms import CategoryForm, ReplyForm, CommentForm
-from .models import Category
+from .models import Category, User
 from .forms import CategoryForm
 from adminPortal.models import Event, EventCategory
 
@@ -86,11 +86,11 @@ def is_customer(user):
     return user.groups.filter(name='CUSTOMER').exists()
 
 
-# def afterlogin_view(request):
-#     if is_customer(request.user):
-#         return redirect('customer-home')
-#     else:
-#         return redirect('admin-dashboard')
+def afterlogin_view(request):
+     if is_customer(request.user):
+         return redirect('customer-home')
+     else:
+         return redirect('admin-dashboard')
 
 
 @login_required(login_url='adminlogin')
@@ -596,7 +596,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     fields = ['title', 'content', 'file']
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        customer = Customer.objects.get(user=self.request.user)
+        form.instance.author = customer
         return super().form_valid(form)
 
 
