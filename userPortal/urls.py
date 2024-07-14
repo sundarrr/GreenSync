@@ -1,7 +1,9 @@
+from django.conf.urls.static import static
 from django.contrib.auth import admin, views
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
 
+from GreenSyncIAT import settings
 from .views import (
     admin_add_product_view,
     admin_dashboard_view,
@@ -99,3 +101,6 @@ urlpatterns = [
     path('about/', about, name='blog-about'),
     path('search/', search, name='search'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
