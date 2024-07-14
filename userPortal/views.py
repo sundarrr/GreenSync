@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
@@ -490,9 +491,16 @@ def edit_profile_view(request):
             return HttpResponseRedirect('my-profile')
     return render(request, 'ecom/v2/profile/edit_profile.html', context=mydict)
 
+
 def dashboard(request):
     categories = models.Category.objects.all()
-    return render(request, 'ecom/v2/home/user-dashboard.html',{'categories':categories})
+    top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]
+
+    context = {
+        'categories': categories,
+        'top_events': top_events,
+    }
+    return render(request, 'ecom/v2/home/user-dashboard.html', context)
 
 def add_category_view(request):
     if request.method == 'POST':
@@ -542,7 +550,7 @@ def home(request):
         'posts': posts,
         'comments': comments,
     }
-    return render(request, 'blog/home.html', context)
+    return render(request, 'blog/home.html`', context)
 
 
 def search(request):
