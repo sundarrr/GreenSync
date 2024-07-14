@@ -2,7 +2,6 @@
 <!doctype html>
 <html lang="en">
   <head>
-    
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,52 +10,152 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    <style>
+      /* General body style */
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+      }
+
+      /* Navbar styling */
+      .navbar {
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #e8e3e3;
+      }
+
+      .navbar-brand img {
+        height: 20px;
+      }
+
+      .navbar-nav .nav-link {
+        color: #333333 !important;
+        font-weight: bold;
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #007bff !important;
+      }
+
+      .form-inline .form-control {
+        width: 250px;
+        border-radius: 0;
+      }
+
+      .btn-outline-success {
+        color: #fff;
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+
+      .btn-outline-success:hover {
+        color: #f6f3f3;
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+
+      /* Container and alert styling */
+      .container {
+        padding-top: 10px;
+      }
+
+      .my-bg {
+        background-color: #b1e15e;
+        padding: 30px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .alert {
+        margin-top: 10px;
+      }
+
+      /* Custom styles for the header section */
+      .navbar-nav {
+        flex-direction: row;
+      }
+
+      .nav-item {
+        margin-right: 15px;
+      }
+
+      #searchform {
+        display: flex;
+      }
+
+      #searchform input[type="search"] {
+        border-radius: 0;
+        border-top-left-radius: 0.15rem;
+        border-bottom-left-radius: 0.15rem;
+      }
+
+      #searchform button[type="submit"] {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 0.15rem;
+        border-bottom-right-radius: 0.15rem;
+      }
+
+      /* Custom styles for user actions */
+      .navbar-nav .nav-link {
+        padding: 0.5rem 1rem;
+      }
+
+      .navbar-nav .nav-link i {
+        margin-right: 2px; /*Marhin chnaged Riya*/
+      }
+
+      /* Custom styles for the image */
+      .header-image {
+        max-width: 100%; /* Ensure the image does not exceed its container's width */
+        height: auto; /* Maintain aspect ratio */
+        max-height: 50px; /* Set the maximum height */
+      }
+    </style>
+
     {% if title %}
         <title>Django WebApp - {{ title }}</title>
     {% else %}
         <title>Django WebApp</title>
     {% endif %}
-
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-     <!--<a class="navbar-brand font-weight-bold" href=""><i class="fas fa-file"></i> Django WebApp</a> -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand font-weight-bold" href="#"><i class="fas fa-home"></i> Home</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
     
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="/dashboard"><i class="fas fa-home"></i> Home <span class="sr-only">(current)</span></a>
-          </li>
-        </ul>
+        <ul class="navbar-nav mr-auto"></ul>
         <form id="searchform" action="{% url 'search' %}" method="get">
           <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search Here..." />
           <button type="button" onclick="searchform.submit()" class="text-white my-color btn-primary"><i class="fa fa-search"></i></button>
         </form>
       
         {% if user.is_authenticated %}
-          <a href="{% url 'user-posts' user %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i> My Post</a>
-          <a href="{% url 'post-create' %}" class="btn text-white m-2"><i class="fas fa-user-edit"></i> New Post</a>
-          <a href="{% url 'my-profile' %}" class="btn text-white m-2"><i class="fas fa-user"></i> {{ user.username }}</a>
+          <a href="{% url 'user-posts' user %}" class="btn text-dark"><i class="fas fa-user-shield"></i> My Post</a>
+          <a href="{% url 'post-create' %}" class="btn text-dark "><i class="fas fa-user-edit"></i> New Post</a>
+          <a href="{% url 'my-profile' %}" class="btn text-dark "><i class="fas fa-user"></i> {{ user.username }}</a>
           
           <!-- Logout Form -->
           <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
             {% csrf_token %}
           </form>
-          <a href="#" class="btn text-white m-2" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+          <a href="#" class="btn text-dark m-0.5" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
             <i class="fas fa-sign-out-alt"></i> Log Out
           </a>
           
         {% else %}
-          <a href="{% url 'customerlogin' %}" class="btn text-white m-2"><i class="fas fa-user-tie"></i> Log In</a>
-          <!-- <a href="" class="btn text-white m-2"><i class="fas fa-sign-in-alt"></i> Sign Up</a>>>
+          <a href="{% url 'customerlogin' %}" class="btn text-dark m-.5"><i class="fas fa-user-tie"></i> Log In</a>
+          <!-- <a href="" class="btn text-dark m-2"><i class="fas fa-sign-in-alt"></i> Sign Up</a> -->
         {% endif %}
       </div>
     </nav>
     
     <div class="container my-bg">
+      
+      
       {% if messages %}
         {% for message in messages %}
           <div class="alert alert-{{ message.tags }}">
