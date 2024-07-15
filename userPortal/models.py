@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 class Admin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -68,8 +69,9 @@ class Post(models.Model):
     author = models.ForeignKey(Customer, on_delete=models.CASCADE)
     file = models.FileField(upload_to='files/', blank=True, null=True)
 
-    def __str__(self):
-        return self.title
+    def get_absolute_url(self):
+        #return self.title
+        return reverse('post-detail', kwargs={'pk': self.pk}) #Riya Updated
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
