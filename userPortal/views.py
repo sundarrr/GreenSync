@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
 from . import forms, models
@@ -14,7 +15,7 @@ from django.template import Context
 from django.http import HttpResponse
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Category, Comment, Customer
+from .models import Category, Comment, Customer, Admin, Product, Orders
 from .forms import CategoryForm, ReplyForm, CommentForm
 from .models import Category, User
 from .forms import CategoryForm
@@ -93,21 +94,27 @@ def afterlogin_view(request):
      else:
          return redirect('admin-dashboard')
 
+def is_admin(user):
+    return Admin.objects.filter(user=user).exists()
+@login_required
+@user_passes_test(is_admin)
+def admin_portal_view(request):
+    return redirect('dashboard')
 
 @login_required(login_url='adminlogin')
 def admin_dashboard_view(request):
     # for cards on dashboard
-    customercount = models.Customer.objects.all().count()
-    productcount = models.Product.objects.all().count()
-    ordercount = models.Orders.objects.all().count()
+    customercount = Customer.objects.all().count()
+    productcount = Product.objects.all().count()
+    ordercount = Orders.objects.all().count()
 
     # for recent order tables
-    orders = models.Orders.objects.all()
+    orders = Orders.objects.all()
     ordered_products = []
     ordered_bys = []
     for order in orders:
-        ordered_product = models.Product.objects.all().filter(id=order.product.id)
-        ordered_by = models.Customer.objects.all().filter(id=order.customer.id)
+        ordered_product = Product.objects.all().filter(id=order.product.id)
+        ordered_by = Customer.objects.all().filter(id=order.customer.id)
         ordered_products.append(ordered_product)
         ordered_bys.append(ordered_by)
 
@@ -118,7 +125,6 @@ def admin_dashboard_view(request):
         'data': zip(ordered_products, ordered_bys, orders),
     }
     return render(request, 'ecom/v2/admin/admin_dashboard.html', context=mydict)
-
 
 # admin view the product
 @login_required(login_url='adminlogin')

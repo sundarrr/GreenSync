@@ -47,7 +47,7 @@ from .views import (
     search,
     admin_categories_view,
     autosuggest,
-    event_view
+    event_view, admin_portal_view
 )
 
 urlpatterns = [
@@ -60,6 +60,7 @@ urlpatterns = [
     path('events/', event_view, name='events'),
 
     path('adminclick', adminclick_view),
+    path('admin-portal/', admin_portal_view, name='admin-portal'),
     path('adminlogin', LoginView.as_view(template_name='ecom/v2/login/admin_login.html'), name='adminlogin'),
     path('admin-dashboard', admin_dashboard_view, name='admin-dashboard'),
 

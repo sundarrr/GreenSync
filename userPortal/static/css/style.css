@@ -3465,63 +3465,62 @@ ol {
 	.blog__details__hero__text h2 {
 		font-size: 24px;
 	}
-}
+	}
 
-#events-page-container {
-	max-width: 1200px;
-}
+	#events-page-container {
+		max-width: 1200px;
+	}
 
-#events-title {
-	margin-top: 20px;
-	margin-bottom: 20px;
-}
+	#events-title {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
 
-/* Custom styles for the Events page */
-#events-page-container {
-    max-width: 1200px;
-}
+	/* Custom styles for the Events page */
+	#events-page-container {
+		max-width: 1200px;
+	}
 
-#events-title {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    color: green; /* Ensures the text color is green */
-}
+	#events-title {
+		margin-top: 20px;
+		margin-bottom: 20px;
+		color: green; /* Ensures the text color is green */
+	}
 
-.toggle-details {
-    display: none;
-}
+	.toggle-details {
+		display: none;
+	}
 
-.event-details {
-    display: none;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-}
+	.event-details {
+		display: none;
+		padding: 10px;
+		border-top: 1px solid #ddd;
+	}
 
-/* Show event details when the corresponding checkbox is checked */
-.toggle-details:checked ~ .featured__item__text .event-details {
-    display: block;
-}
+	/* Show event details when the corresponding checkbox is checked */
+	.toggle-details:checked ~ .featured__item__text .event-details {
+		display: block;
+	}
 
-/* Uniform styles for all buttons */
-.featured__item__pic__hover li a,
-.featured__item__pic__hover label {
-    background-color: white;
-    border-radius: 50%;
-    width: 35px; /* Adjusted width */
-    height: 35px; /* Adjusted height */
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    margin: 0 5px;
-    text-align: center;
-    line-height: 35px;
-}
+	/* Uniform styles for all buttons */
+	.featured__item__pic__hover li a,
+	.featured__item__pic__hover label {
+		background-color: white;
+		border-radius: 50%;
+		width: 35px; /* Adjusted width */
+		height: 35px; /* Adjusted height */
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		margin: 0 5px;
+		text-align: center;
+		line-height: 35px;
+	}
 
-.featured__item__pic__hover li a i,
-.featured__item__pic__hover label i {
-    color: black;
-    font-size: 16px; /* Adjust font size */
-    line-height: 1;
-}
-
+	.featured__item__pic__hover li a i,
+	.featured__item__pic__hover label i {
+		color: black;
+		font-size: 16px; /* Adjust font size */
+		line-height: 1;
+	}
