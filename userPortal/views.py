@@ -550,7 +550,7 @@ def home(request):
         'posts': posts,
         'comments': comments,
     }
-    return render(request, 'blog/home.html`', context)
+    return render(request, 'blog/home.html', context)
 
 
 def search(request):
