@@ -24,6 +24,8 @@ from adminPortal.models import Event, EventCategory
 #QA Forum
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView
 
 
 from django.http.response import (
@@ -559,6 +561,10 @@ def home(request):
     return render(request, 'blog/home.html', context)
 
 
+
+class HomeView(TemplateView):
+    template_name = 'home.html'
+
 def search(request):
     template = 'blog/home.html'
 
@@ -663,58 +669,73 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 
+# class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+#     model = Post
+#     success_url = '/'
+#     template_name = 'blog/post_confirm_delete.html'
+
+#     def test_func(self):
+#         post = self.get_object()
+#         if self.request.user == post.author:
+#             return True
+#         return False
+    
+
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    success_url = '/'
+    success_url = reverse_lazy('home')
     template_name = 'blog/post_confirm_delete.html'
 
     def test_func(self):
         post = self.get_object()
-        if self.request.user == post.author:
-            return True
-        return False
+        return self.request.user == post.author.user
 
 
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
 
 
-#def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    comments = post.comments.filter(parent=None)  # Get only parent comments
-    reply_form = ReplyForm()
+# def post_detail(request, pk):
+#     post = get_object_or_404(Post, pk=pk)
+#     comments = post.comments.filter(parent=None)  # Get only parent comments
+#     reply_form = ReplyForm()
 
-    if request.method == 'POST':
-        if 'comment_form' in request.POST:
-            comment_form = CommentForm(request.POST)
-            if comment_form.is_valid():
-                new_comment = comment_form.save(commit=False)
-                new_comment.post = post
-                new_comment.author = request.user
-                new_comment.save()
-                return redirect('post-detail', pk=post.pk)
-        elif 'reply_form' in request.POST:
-            reply_form = ReplyForm(request.POST)
-            if reply_form.is_valid():
-                parent_id = request.POST.get('parent_id')
-                parent_comment = get_object_or_404(Comment, id=parent_id)
-                new_reply = reply_form.save(commit=False)
-                new_reply.post = post
-                new_reply.author = request.user
-                new_reply.parent = parent_comment
-                new_reply.save()
-                return redirect('post-detail', pk=post.pk)
-    else:
-        comment_form = CommentForm()
+#     if request.method == 'POST':
+#         if 'comment_form' in request.POST:
+#             comment_form = CommentForm(request.POST)
+#             if comment_form.is_valid():
+#                 new_comment = comment_form.save(commit=False)
+#                 customer = Customer.objects.get(user=request.user)
+#                 new_comment.post = post
+#                 new_comment.author = customer
+#                 new_comment.save()
+#                 return redirect('post-detail', pk=post.pk)
+#         elif 'reply_form' in request.POST:
+#             reply_form = ReplyForm(request.POST)
+#             if reply_form.is_valid():
+#                 parent_id = request.POST.get('parent_id')
+#                 parent_comment = get_object_or_404(Comment, id=parent_id)
+#                 new_reply = reply_form.save(commit=False)
+#                 customer = Customer.objects.get(user=request.user)
+#                 new_reply.post = post
+#                 new_reply.author = customer
+#                 new_reply.parent = parent_comment
+#                 new_reply.save()
+#                 return redirect('post-detail', pk=post.pk)
+#     else:
+#         comment_form = CommentForm()
 
-    context = {
-        'post': post,
-        'comments': comments,
-        'comment_form': comment_form,
-        'reply_form': reply_form,
-    }
+#     context = {
+#         'post': post,
+#         'comments': comments,
+#         'comment_form': comment_form,
+#         'reply_form': reply_form,
+#     }
 
-    return render(request, 'blog/post_detail.html', context)
+#     return render(request, 'blog/post_detail.html', context)
+
+
+
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)

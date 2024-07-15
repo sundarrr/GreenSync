@@ -8,13 +8,13 @@
             font-size: 1rem; /* Adjust the size as needed */
         }
         .comment-form textarea {
-            width: 300px; /* Adjust the width as needed */
+            width: 200px; /* Adjust the width as needed */
         }
         .hidden {
             display: none;
         }
         .comment {
-            border-bottom: .5px solid #a1e3a9; /* Light grey line */
+            border-bottom: .5px solid #acd1b0; /* Light grey line */
             padding: 2px; /* Space inside the comment box */
             margin-bottom: 3px; /* Space between comments */
             background-color: #d9edf7; /* Light blue background color */
@@ -23,7 +23,7 @@
     </style>
 
     {% for post in posts %}
-        <div class="jumbotron mt-3 bg-white shadow-lg">
+        <div class="jumbotron mt-2 bg-white shadow-lg">
             <article class="media content-section shadow">
                 <a href="{{ post.author.profile_pic }}" target="_blank">
                     <img src="{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
@@ -71,8 +71,8 @@
 
     {% if is_paginated %}
         {% if page_obj.has_previous %}
-            <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            <a class="btn btn-outline-info mb-2" href="?page=1">First</a>
+            <a class="btn btn-outline-info mb-2" href="?page={{ page_obj.previous_page_number }}">Previous</a>
         {% endif %}
         {% for num in page_obj.paginator.page_range %}
             {% if page_obj.number == num %}
