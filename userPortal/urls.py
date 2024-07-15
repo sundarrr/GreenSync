@@ -79,7 +79,7 @@ urlpatterns = [
     path('my-order', my_order_view, name='my-order'),
     path('my-profile', my_profile_view, name='my-profile'),
     path('edit-profile', edit_profile_view, name='edit-profile'),
-    path('download-invoice/<int:orderID>/<int:productID>', download_invoice_view, name='download-invoice'),
+    path('download-invoice/<int:orderID>', download_invoice_view, name='download-invoice'),
 
     path('add-to-cart/<int:pk>', add_to_cart_view, name='add-to-cart'),
     path('cart', cart_view, name='cart'),

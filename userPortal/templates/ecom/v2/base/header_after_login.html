@@ -35,7 +35,7 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="header__top__left">
                         <ul>
-                            <li><i class="fa fa-envelope"></i> admin@greensync.in</li>
+                            <li><i class="fa fa-envelope"></i> admin@greensync.ca</li>
                         </ul>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                     <ul>
                         <li class="{% if request.path == '/' %}active{% endif %}"><a href="{% url 'customer-home' %}">HOME</a></li>
                         <li class="{% if request.path == '/shop/' %}active{% endif %}"><a href="{% url '' %}">SHOP</a></li>
-                        <li class="{% if request.path == '/forum/' %}active{% endif %}"><a href="{% url '' %}">FORUM</a></li>
+                        <li class="{% if request.path == '/forum/' %}active{% endif %}"><a href="{% url 'blog-home' %}">FORUM</a></li>
                         <li class="{% if request.path == '/events/' %}active{% endif %}"><a href="{% url 'events' %}" style="{% if request.path == '/events/' %}color: green;{% endif %}">EVENTS</a></li>
                     </ul>
                 </nav>

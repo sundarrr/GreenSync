@@ -167,31 +167,30 @@ p {
 <div class="container">
     <header class="card-header" style="text-align:center;"> My Orders / Tracking </header>
 
-    {% for products,order in data %}
+    {% if order %}
 
     <article class="card">
         <div class="card-body">
             <ul class="row" style="margin-left:20px;margin-top:20px;">
+            {%for product in products%}
                 <li class="col-md-4">
                   <figure class="itemside mb-3">
-                    {%for product in products%}
                       <div class="aside"><img src="{% static product.product_image.url %}" class="img-sm border"></div>
                       <figcaption class="info align-self-center">
 
                           <p class="title"><strong>Name : </strong>{{product.name}} <br> <strong>Description : </strong>{{product.description}}</p> <span class="text-muted"><strong>Price : </strong>{{product.price}} </span>
 
                       </figcaption>
-
                   </figure>
                 </li>
+            {%endfor%}
                 <li class="col-md-4">
                     <div class="col"> <strong>Shipment Address:</strong> <br> {{order.address}}</div>
                 </li>
                 <li class="col-md-4">
                     <div class="col"> <strong>Status:</strong> <br> {{order.status}} </div> <br>
-                    <h4><a style="text-decoration:none; color:blue;" href="{% url 'download-invoice' order.id product.id  %}" >Download Invoice</a></h4>
+                    <h4><a style="text-decoration:none; color:blue;" href="{% url 'download-invoice' order.id %}" >Download Invoice</a></h4>
                 </li>
-                {%endfor%}
             </ul>
             <hr>
 
@@ -221,7 +220,7 @@ p {
 
         </div>
     </article><br>
-    {%endfor%}
+    {% endif %}
 </div>
 {% include 'ecom/v2/base/footer.html' %}
 {% include 'ecom/v2/base/js.html' %}
