@@ -44,7 +44,12 @@ from .views import (
     event_view,
     admin_portal_view,
     register_event,
-    cancel_registration
+    cancel_registration,
+    about_us,
+    details,
+    contact_us,
+    terms_and_condition,
+    privacy_policy
 )
 
 urlpatterns = [
@@ -71,6 +76,12 @@ urlpatterns = [
     path('admin-view-booking', admin_view_booking_view, name='admin-view-booking'),
     path('delete-order/<int:pk>', delete_order_view, name='delete-order'),
     path('update-order/<int:pk>', update_order_view, name='update-order'),
+
+    path('about_us', about_us, name='about_us'),
+    path('details', details, name='details'),
+    path('contact_us', contact_us, name='contact_us'),
+    path('terms_and_condition', terms_and_condition, name='terms_and_condition'),
+    path('privacy_policy', privacy_policy, name='privacy_policy'),
 
     path('customersignup', customer_signup_view),
     path('customerlogin', LoginView.as_view(template_name='ecom/v2/login/customer_login.html'), name='customerlogin'),

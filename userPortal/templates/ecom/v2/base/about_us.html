@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>EcoGreenMart</title>
+    {% load static %}
+    {% include 'ecom/v2/base/load_css.html' %}
+    <style>
+        .about-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+
+        .about-section .container {
+            max-width: 800px;
+        }
+
+        .about-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #28a745;
+        }
+
+        .about-section p {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: #28a745;
+            margin-right: 15px;
+        }
+
+        .feature-text {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+
+        .feature-item {
+            margin-bottom: 30px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+
+<body>
+{% include 'ecom/v2/base/header.html' %}
+
+<div class="about-section text-center">
+    <div class="container">
+        <h2>Welcome to Eco Green Mart!</h2>
+        <p>At Eco Green Mart, we are dedicated to promoting a sustainable and eco-friendly lifestyle. Our platform is
+            designed to support individuals who are passionate about organic living, home farming, and environmental
+            sustainability.</p>
+        <h2>Who We Are</h2>
+        <p>Eco Green Mart was founded with the mission of making a positive impact on our planet. We believe in the
+            power of community and the importance of living in harmony with nature. Our goal is to provide you with the
+            tools, resources, and products you need to lead a greener, healthier life.</p>
+        <h2>Our Features</h2>
+        <div class="row text-left">
+            <div class="col-md-4 feature-item">
+                <div class="d-flex align-items-center">
+                    <i class="fa fa-shopping-basket feature-icon"></i>
+                    <div class="feature-text">
+                        <strong>E-commerce for Organic Products:</strong> Explore a wide range of organic products
+                        sourced from trusted suppliers. From fresh produce and pantry staples to eco-friendly household
+                        items, our e-commerce platform offers everything you need to support a sustainable lifestyle.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 feature-item">
+                <div class="d-flex align-items-center">
+                    <i class="fa fa-seedling feature-icon"></i>
+                    <div class="feature-text">
+                        <strong>Forum for House Farming:</strong> Join our vibrant community of home farming
+                        enthusiasts! Our forum is a space where you can ask questions, share experiences, and connect
+                        with others who are passionate about growing their own food.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 feature-item">
+                <div class="d-flex align-items-center">
+                    <i class="fa fa-calendar-alt feature-icon"></i>
+                    <div class="feature-text">
+                        <strong>Event Management:</strong> Stay informed about local events related to the environment,
+                        farming, and sustainability. Participate in workshops, seminars, and community gatherings that
+                        align with your interests.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>Our Vision</h2>
+        <p>At Eco Green Mart, our vision is to create a world where sustainable living is the norm. We aim to inspire
+            and empower individuals to make choices that are good for their health, their community, and the planet. By
+            providing access to organic products, educational resources, and a supportive community, we hope to make
+            sustainable living accessible and enjoyable for everyone.</p>
+        <h2>Join Us</h2>
+        <p>We invite you to join us on this journey towards a greener future. Explore our website, engage with our
+            community, and discover how you can contribute to a more sustainable world. Together, we can make a
+            difference, one green choice at a time.</p>
+        <h2>Contact Us</h2>
+        <p>If you have any questions, suggestions, or feedback, please don't hesitate to reach out. We are here to help
+            and always eager to hear from our community.</p>
+        <p class="font-italic">Thank you for choosing Eco Green Mart. Let's grow green together!</p>
+    </div>
+</div>
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
+</body>
+
+</html>
