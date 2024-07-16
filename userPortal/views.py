@@ -115,7 +115,7 @@ def admin_dashboard_view(request):
     ordered_products = []
     ordered_bys = []
     for order in orders:
-        ordered_product = Product.objects.all().filter(id=order.product.id)
+        ordered_product = order.products.all()
         ordered_by = Customer.objects.all().filter(id=order.customer.id)
         ordered_products.append(ordered_product)
         ordered_bys.append(ordered_by)
@@ -166,16 +166,19 @@ def update_product_view(request, pk):
 
 @login_required(login_url='adminlogin')
 def admin_view_booking_view(request):
-    orders = models.Orders.objects.all()
-    ordered_products = []
-    ordered_bys = []
+    orders = Orders.objects.all()
+    data = []
+
     for order in orders:
-        ordered_product = models.Product.objects.all().filter(id=order.product.id)
-        ordered_by = models.Customer.objects.all().filter(id=order.customer.id)
-        ordered_products.append(ordered_product)
-        ordered_bys.append(ordered_by)
-    return render(request, 'ecom/v2/admin/admin_view_booking.html',
-                  {'data': zip(ordered_products, ordered_bys, orders)})
+        ordered_products = order.products.all()
+        ordered_by = Customer.objects.get(id=order.customer.id)
+        data.append({
+            'order': order,
+            'products': ordered_products,
+            'customer': ordered_by
+        })
+
+    return render(request, 'ecom/v2/admin/admin_view_booking.html', {'data': data})
 
 
 @login_required(login_url='adminlogin')

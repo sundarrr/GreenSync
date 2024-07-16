@@ -42,13 +42,27 @@
             {% for product,customer,order in data %}
             <tr>
                 {% for c in customer %}
-                <td>{{ c.get_name }}</td>
+                <td>{{ c.user }}</td>
                 <td>{{ c.mobile }}</td>
                 <td>{{ order.address }}</td>
                 {% endfor %}
-                {% for p in product %}
-                <td>{{ p.name }}</td>
-                <td><img src="{% static p.product_image.url %}" alt="Profile Pic" height="40px" width="40px" /></td>
+                 <td>
+                        <table class="nested-table">
+                            {% for p in product %}
+                            <tr>
+                                <td>{{ p.name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td>
+                        <table class="nested-table">
+                            {% for p in product %}
+                            <tr>
+                                <td><img src="{{ p.product_image.url }}" alt="product picture" height="40px" width="40px" /></td>
+                            {% endfor %}
+                        </table>
+                    </td>
                 {% if order.status == 'Pending' %}
                 <td><span class="label label-info">{{ order.status }}</span></td>
                 {% elif order.status == 'Delivered' %}
@@ -58,7 +72,7 @@
                 {% else %}
                 <td><span class="label label-primary">{{ order.status }}</span></td>
                 {% endif %}
-                {% endfor %}
+
             </tr>
             {% endfor %}
         </table>

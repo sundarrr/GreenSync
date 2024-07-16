@@ -49,7 +49,7 @@
                             {% for event in events %}
                                 <div class="col-lg-3 col-md-4 col-sm-6 mix">
                                     <div class="featured__item" id="event-item-{{ event.id }}">
-                                        <div class="featured__item__pic set-bg" data-setbg="{% static event.category.image.url %}">
+                                        <div class="featured__item__pic set-bg" data-setbg="{{  event.category.image.url }}">
                                             <ul class="featured__item__pic__hover">
                                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
                                                 <li><a href="#"><i class="fa fa-retweet"></i></a></li>

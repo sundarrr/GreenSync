@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 {% load widget_tweaks %}
+{% load static %}
 <html lang="zxx">
 
 <head>
     <meta charset="UTF-8">
     <title>Green Sync</title>
-    {% load static %}
     {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
@@ -62,7 +62,7 @@
                                     <div class="col-lg-3 col-md-4 col-sm-6 mix">
                                         <div class="featured__item">
                                             <div class="featured__item__pic set-bg"
-                                                 data-setbg="{% static p.product_image.url %}">
+                                                 data-setbg="{{p.product_image.url }}">
                                                 <ul class="featured__item__pic__hover">
                                                     <li><a href="#"
                                                     ><i

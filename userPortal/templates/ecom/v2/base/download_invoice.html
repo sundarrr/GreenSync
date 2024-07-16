@@ -148,7 +148,7 @@
 
               <td>
                 Customer Mobile :{{customerMobile}}<br><br>
-                  Shipment Addres :{{shipmentAddress}}
+                  Shipment Address :{{shipmentAddress}}
 
               </td>
             </tr>
@@ -162,7 +162,7 @@
             <tr>
               <td>
                 Product Image :<br>
-                 <img src="{% static product.product_image.url %}" alt="Profile Pic" height="40px" width="40px" /><br><br>
+                 <img src="{{  product.product_image.url }}" alt="product picture" height="40px" width="40px" /><br><br>
                 Product Price : {{product.productPrice}}
               </td>
               <td>
@@ -175,9 +175,7 @@
         </td>
       </tr>
         {% endfor %}
-
-
-
+    
       <tr class="information">
         <td colspan="2">
           <table>

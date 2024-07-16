@@ -9,7 +9,7 @@
             <div class="col-lg-12">
                 <div class="categories__slider owl-carousel">
                     {% for category in categories %}
-                    <div class="categories__item set-bg" data-setbg="{% static category.category_image.url %}">
+                    <div class="categories__item set-bg" data-setbg="{{  category.category_image.url }}">
                         <h5><a href="/search?category={{ category.name }}">{{ category.name }}</a></h5>
                     </div>
                     {% endfor %}
@@ -40,7 +40,7 @@
             {% for event in top_events %}
             <div class="col-lg-3 col-md-4 col-sm-6 mix">
                 <div class="featured__item">
-                    <div class="featured__item__pic set-bg" data-setbg="{% static event.category.image.url %}">
+                    <div class="featured__item__pic set-bg" data-setbg="{{ event.category.image.url }}">
                         <ul class="featured__item__pic__hover">
                             <li><a href="#"><i class="fa fa-heart"></i></a></li>
                             <li><a href="#"><i class="fa fa-retweet"></i></a></li>
@@ -85,7 +85,7 @@
             {% for product in category.product_set.all %}
             <div class="col-lg-3 col-md-4 col-sm-6 mix {{ category.name }}">
                 <div class="featured__item">
-                    <div class="featured__item__pic set-bg" data-setbg="{% static product.product_image %}">
+                    <div class="featured__item__pic set-bg" data-setbg="{{  product.product_image.url }}">
                         <ul class="featured__item__pic__hover">
                             <li><a href="#"><i class="fa fa-heart"></i></a></li>
                             <li><a href="#"><i class="fa fa-retweet"></i></a></li>
