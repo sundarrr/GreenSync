@@ -67,8 +67,8 @@
             <div class="col-lg-6">
                 <nav class="header__menu">
                     <ul>
-                        <li class="{% if request.path == '/' %}active{% endif %}"><a href="{% url 'customer-home' %}">HOME</a></li>
-                        <li class="{% if request.path == '/shop/' %}active{% endif %}"><a href="{% url '' %}">SHOP</a></li>
+                        <li class="{% if request.path == '/' %}active{% endif %}"><a href="{% url '' %}">HOME</a></li>
+                        <li class="{% if request.path == '/shop/' %}active{% endif %}"><a href="{% url 'dashboard' %}">SHOP</a></li>
                         <li class="{% if request.path == '/forum/' %}active{% endif %}"><a href="{% url 'blog-home' %}">FORUM</a></li>
                         <li class="{% if request.path == '/events/' %}active{% endif %}"><a href="{% url 'events' %}" style="{% if request.path == '/events/' %}color: green;{% endif %}">EVENTS</a></li>
                     </ul>
