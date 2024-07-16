@@ -573,10 +573,12 @@ def edit_profile_view(request):
 def dashboard(request):
     categories = models.Category.objects.all()
     top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]
+    top_threads = Post.objects.order_by('-date_posted')[:3]
 
     context = {
         'categories': categories,
         'top_events': top_events,
+        'top_threads': top_threads,
     }
     return render(request, 'ecom/v2/home/user-dashboard.html', context)
 
