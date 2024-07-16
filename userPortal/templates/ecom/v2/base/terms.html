@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>EcoGreenMart</title>
+    {% load static %}
+    {% include 'ecom/v2/base/load_css.html' %}
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .terms-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        h1 {
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .icon {
+            color: #28a745;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+{% include 'ecom/v2/base/header.html' %}
+
+    <div class="container">
+        <div class="terms-container">
+            <h1><i class="fas fa-file-alt icon"></i> Terms and Conditions</h1>
+            <p>Welcome to Eco Green Mart! These terms and conditions outline the rules and regulations for the use of Eco Green Mart's Website, located at www.ecogreenmart.in.</p>
+            <p>By accessing this website we assume you accept these terms and conditions. Do not continue to use Eco Green Mart if you do not agree to take all of the terms and conditions stated on this page.</p>
+
+            <h2><i class="fas fa-shopping-cart icon"></i> E-commerce for Organic Products</h2>
+            <p>Eco Green Mart provides an e-commerce platform for the sale of organic products. By purchasing from our site, you agree to provide accurate and complete information for all purchases and agree to pay all charges incurred under your account.</p>
+
+            <h2><i class="fas fa-comments icon"></i> Forum for House Farming Related Doubts</h2>
+            <p>Our forum allows users to post questions and answers related to house farming. All users are expected to respect others and refrain from posting any offensive, inappropriate, or unlawful content.</p>
+
+            <h2><i class="fas fa-calendar-alt icon"></i> Event Management for Local Events</h2>
+            <p>Eco Green Mart also organizes and promotes events related to the environment and local farming. By participating in these events, you agree to abide by the event rules and regulations as specified during the registration process.</p>
+
+            <h2><i class="fas fa-exclamation-triangle icon"></i> Limitation of Liability</h2>
+            <p>Eco Green Mart will not be held responsible for any damages arising out of or in connection with the use of our website. This includes direct, indirect, incidental, consequential, or punitive damages.</p>
+
+            <h2><i class="fas fa-clipboard-list icon"></i> Changes to These Terms</h2>
+            <p>We reserve the right to amend these terms and conditions at any time. Any changes will be posted on this page, and it is your responsibility to review these terms periodically.</p>
+
+            <h2><i class="fas fa-phone-alt icon"></i> Contact Us</h2>
+            <p>If you have any questions about these Terms and Conditions, please contact us at <a href="mailto:support@ecogreenmart.in">support@ecogreenmart.in</a>.</p>
+        </div>
+    </div>
+
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
+</body>
+
+</html>

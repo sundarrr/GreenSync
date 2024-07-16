@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>EcoGreenMart</title>
+    {% load static %}
+    {% include 'ecom/v2/base/load_css.html' %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin: 20px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-img-top {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin: 20px auto;
+        }
+
+        .card-title {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .card-text {
+            text-align: justify;
+        }
+
+        .social-icons a {
+            color: #28a745;
+            margin: 0 10px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+
+<body>
+{% include 'ecom/v2/base/header.html' %}
+<div class="container">
+
+    <h2 class="card-title text-center"><i class="fas fa-user icon"></i> Developers</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+
+                <img src='media/profile_pic/saravanan.jpg' class="card-img-top" alt="Saravanan Chandrasekaran">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Saravanan Chandrasekaran</h5>
+                    <p class="card-text">Lead Full Stack Developer | Google DSC Tech Lead | SDE 3 - Ex-Verizon
+                        (Conversational AI) | Ex-TD Bank (Wipro) | Creator of news apps boasting 1+ million downloads</p>
+                    <div class="social-icons">
+                        <a href="https://www.saravananchandrasekaran.com" target="_blank"><i
+                                class="fa fa-globe"></i></a>
+                        <a href="https://www.linkedin.com/in/saravananchandrasekaran/" target="_blank"><i
+                                class="fab fa-linkedin"></i></a>
+                        <a href="https://github.com/saravananbcs" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <img src='media/profile_pic/rakul.jpeg' class="card-img-top" alt="Rakul Vimala Manokaran">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Rakul Vimala Manokaran</h5>
+                    <p class="card-text">Grad student @ UWindsor | Ex-Software Engineer @ Applied Data Finance |
+                        Infrastructure as code, Shell Scripting | Python Developer | 2 years of experience</p>
+                    <div class="social-icons">
+                        <a href="https://www.linkedin.com/in/rakul-vimala-manokaran/" target="_blank"><i
+                                class="fab fa-linkedin"></i></a>
+                        <a href="https://github.com/rakulvm" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <img src='media/profile_pic/riya.jpeg' class="card-img-top" alt="Riya Singh Patel">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Riya Singh Patel</h5>
+                    <p class="card-text">Masters of Applied Computing | Data Analytics | Python | Power BI | Tableau |
+                        SQL | Operations </p>
+                    <div class="social-icons">
+                        <a href="https://www.linkedin.com/in/riyasinghpatel/" target="_blank"><i
+                                class="fab fa-linkedin"></i></a>
+                        <a href="https://github.com/RiyaSinghPatel" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <img src='media/profile_pic/sundar.jpeg' class="card-img-top" alt="Sundar Rathinavel">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Sundar Rathinavel</h5>
+                    <p class="card-text">Graduate Student at University of Windsor | Ex- Infosys | Python, React, Django</p>
+                    <div class="social-icons">
+                        <a href="https://www.linkedin.com/in/sundar-rathinavel" target="_blank"><i
+                                class="fab fa-linkedin"></i></a>
+                        <a href="https://github.com/sundarrr" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
+</body>
+
+</html>
