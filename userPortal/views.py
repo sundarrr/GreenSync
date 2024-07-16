@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.mail import send_mail
+from .smtp import send_email
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -118,6 +118,9 @@ def customer_signup_view(request):
             customer.save()
             my_customer_group = Group.objects.get_or_create(name='CUSTOMER')
             my_customer_group[0].user_set.add(user)
+            send_email(user.email,'Registration Successful in EcoGreenSmart',
+                   f'Hi {user.first_name}, <br><br> Thank you for registering with EcoGreenSmart. '
+                   f'<br><br> Regards, <br> EcoGreenSmart Team')
         return HttpResponseRedirect('customerlogin')
     # return render(request,'ecom/customersignup.html',context=mydict)
     return render(request, 'ecom/v2/signup/customer_signup.html', context=mydict)

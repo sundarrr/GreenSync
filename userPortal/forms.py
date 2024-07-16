@@ -7,16 +7,20 @@ from .models import Product, Category, Comment
 class CustomerUserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'password']
+        fields = ['first_name', 'email','last_name', 'username', 'password']
         widgets = {
-            'password': forms.PasswordInput()
+            'password': forms.PasswordInput(),
+            'email': forms.EmailInput()
         }
 
 
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = models.Customer
-        fields = ['address', 'mobile', 'profile_pic']
+        fields = ['address', 'email','mobile', 'profile_pic']
+        widgets = {
+            'email': forms.EmailInput()
+        }
 
 
 class ProductForm(forms.ModelForm):
