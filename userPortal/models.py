@@ -2,16 +2,19 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from adminPortal.models import Event, EventRegistrationManager
+
+
 class Admin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username
 
-# Create your models here.
+# Other existing models...
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='images/', default='user.png',null=True, blank=True)
+    profile_pic = models.ImageField(upload_to='images/', default='user.png', null=True, blank=True)
     address = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20, null=False)
 
@@ -26,7 +29,6 @@ class Customer(models.Model):
     def __str__(self):
         return self.user.username
 
-
 class Product(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=40)
@@ -36,7 +38,7 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-        
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -50,7 +52,7 @@ class Orders(models.Model):
         ('Pending', 'Pending'),
         ('Order Confirmed', 'Order Confirmed'),
         ('Out for Delivery', 'Out for Delivery'),
-        ('Delivered', 'Delivered'),
+        ('Delivered', 'Delivered')
     )
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE, null=True)
     products = models.ManyToManyField(Product, blank=True)
@@ -61,8 +63,6 @@ class Orders(models.Model):
     order_date = models.DateField(auto_now_add=True, null=True)
     status = models.CharField(max_length=50, null=True, choices=STATUS)
 
-
-#QA Forum models
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()

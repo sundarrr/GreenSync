@@ -19,7 +19,7 @@ from .models import Category, Comment, Customer, Admin, Product, Orders
 from .forms import CategoryForm, ReplyForm, CommentForm
 from .models import Category, User
 from .forms import CategoryForm
-from adminPortal.models import Event, EventCategory
+from adminPortal.models import Event, EventCategory, EventRegistration
 
 #QA Forum
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -40,7 +40,7 @@ from django.views.generic import (
     DeleteView
 )
 def home_view(request):
-    products = models.Product.objects.all()
+    products = Product.objects.all()
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
         counter = product_ids.split('|')
@@ -49,14 +49,50 @@ def home_view(request):
         product_count_in_cart = 0
     if request.user.is_authenticated:
         return HttpResponseRedirect('customer-home')
-    return render(request, 'ecom/v2/home/index.html',
-                  {'products': products, 'product_count_in_cart': product_count_in_cart})
+    return render(request, 'ecom/v2/home/index.html', {'products': products, 'product_count_in_cart': product_count_in_cart})
+
+@login_required
+def register_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    user = request.user
+
+    if event.registration_count >= event.maximum_attende:
+        messages.error(request, "This event is full. Registration is not possible.")
+        return redirect('events')
+
+    registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
+    if created:
+        messages.success(request, f"You have successfully registered for {event.name} event.")
+    else:
+        messages.info(request, f"You are already registered for {event.name} event.")
+    return redirect('events')
+
+@login_required
+def cancel_registration(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    user = request.user
+
+    try:
+        registration = EventRegistration.objects.get(event=event, user=user)
+        registration.delete()
+        messages.success(request, f"You have successfully canceled your registration for {event.name} event.")
+    except EventRegistration.DoesNotExist:
+        messages.error(request, "You are not registered for this event.")
+
+    return redirect('events')
+
+@login_required
 def event_view(request):
     events = Event.objects.all()
     categories = EventCategory.objects.all()
+    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else []
+    registered_event_ids = registrations.values_list('event_id', flat=True)
+    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in events}
     context = {
         'events': events,
         'categories': categories,
+        'registered_event_ids': registered_event_ids,
+        'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
@@ -331,7 +367,6 @@ def remove_from_cart_view(request, pk):
             response.delete_cookie('product_ids')
         response.set_cookie('product_ids', value)
         return response
-
 
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
