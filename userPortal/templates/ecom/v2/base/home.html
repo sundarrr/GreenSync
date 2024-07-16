@@ -2,14 +2,13 @@
 
 {% include 'ecom/v2/base/side_nav.html' %}
 
-<!-- Categories Section Begin -->
 <section class="categories">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="categories__slider owl-carousel">
                     {% for category in categories %}
-                    <div class="categories__item set-bg" data-setbg="{{  category.category_image.url }}">
+                    <div class="categories__item set-bg" data-setbg="{{ category.category_image.url }}">
                         <h5><a href="/search?category={{ category.name }}">{{ category.name }}</a></h5>
                     </div>
                     {% endfor %}
@@ -18,9 +17,7 @@
         </div>
     </div>
 </section>
-<!-- Categories Section End -->
 
-<!-- Top Registered Events Section Begin -->
 <section class="featured spad">
     <div class="container">
         <div class="row">
@@ -60,9 +57,7 @@
         </div>
     </div>
 </section>
-<!-- Top Registered Events Section End -->
 
-<!-- Featured Section Begin -->
 <section class="featured spad">
     <div class="container">
         <div class="row">
@@ -85,7 +80,7 @@
             {% for product in category.product_set.all %}
             <div class="col-lg-3 col-md-4 col-sm-6 mix {{ category.name }}">
                 <div class="featured__item">
-                    <div class="featured__item__pic set-bg" data-setbg="{{  product.product_image.url }}">
+                    <div class="featured__item__pic set-bg" data-setbg="{{ product.product_image.url }}">
                         <ul class="featured__item__pic__hover">
                             <li><a href="#"><i class="fa fa-heart"></i></a></li>
                             <li><a href="#"><i class="fa fa-retweet"></i></a></li>
@@ -103,6 +98,29 @@
         </div>
     </div>
 </section>
-<!-- Featured Section End -->
+
+<section class="featured spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <h2>Top Threads in QA Forum</h2>
+                </div>
+                <div class="list-group">
+                    {% for thread in top_threads %}
+                    <a href="{% url 'post-detail' thread.pk %}" class="list-group-item list-group-item-action">
+                        <h5 class="mb-1">{{ thread.title }}</h5>
+                        <p class="mb-1">{{ thread.content|truncatewords:20 }}</p>
+                        <small>Posted by {{ thread.author.user.username }} on {{ thread.date_posted }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                <div class="mt-3 text-center">
+                    <a href="{% url 'blog-home' %}" class="btn btn-secondary">View More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% include 'ecom/v2/base/js.html' %}
