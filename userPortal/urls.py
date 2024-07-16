@@ -74,7 +74,7 @@ urlpatterns = [
 
     path('customersignup', customer_signup_view),
     path('customerlogin', LoginView.as_view(template_name='ecom/v2/login/customer_login.html'), name='customerlogin'),
-    path('customer-home', customer_home_view, name='customer-home'),
+    path('customer-home/', customer_home_view, name='customer-home'),
     path('my-order', my_order_view, name='my-order'),
     path('my-profile', my_profile_view, name='my-profile'),
     path('edit-profile', edit_profile_view, name='edit-profile'),
