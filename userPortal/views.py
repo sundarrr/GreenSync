@@ -26,6 +26,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
+from django.db.models import Q
 
 
 from django.http.response import (
@@ -565,14 +566,17 @@ def home(request):
 class HomeView(TemplateView):
     template_name = 'home.html'
 
+
+
 def search(request):
     template = 'blog/home.html'
 
     query = request.GET.get('q')
 
     result = Post.objects.filter(
-        Q(title__icontains=query) | Q(author__username__icontains=query) | Q(content__icontains=query))
-    paginate_by = 2
+        Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
+    )
+    
     context = {'posts': result}
     return render(request, template, context)
 
@@ -612,16 +616,6 @@ class PostDetailView(DetailView):
 
 
 
-# class PostCreateView(LoginRequiredMixin, CreateView):
-#     model = Post
-#     template_name = 'blog/post_form.html'
-#     fields = ['title', 'content', 'file']
-
-#     def form_valid(self, form):
-#         customer = Customer.objects.get(user=self.request.user)
-#         form.instance.author = customer
-#         return super().form_valid(form)
-
 
 #riya Created new
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -634,21 +628,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = customer
         return super().form_valid(form)
 
-
-# class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-#     model = Post
-#     template_name = 'blog/post_form.html'
-#     fields = ['title', 'content', 'file']
-
-#     def form_valid(self, form):
-#         form.instance.author = self.request.user
-#         return super().form_valid(form)
-
-#     def test_func(self):
-#         post = self.get_object()
-#         if self.request.user == post.author:
-#             return True
-#         return False
 
 
 
@@ -668,17 +647,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == post.author.user
 
 
-
-# class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-#     model = Post
-#     success_url = '/'
-#     template_name = 'blog/post_confirm_delete.html'
-
-#     def test_func(self):
-#         post = self.get_object()
-#         if self.request.user == post.author:
-#             return True
-#         return False
     
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -693,47 +661,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
-
-
-# def post_detail(request, pk):
-#     post = get_object_or_404(Post, pk=pk)
-#     comments = post.comments.filter(parent=None)  # Get only parent comments
-#     reply_form = ReplyForm()
-
-#     if request.method == 'POST':
-#         if 'comment_form' in request.POST:
-#             comment_form = CommentForm(request.POST)
-#             if comment_form.is_valid():
-#                 new_comment = comment_form.save(commit=False)
-#                 customer = Customer.objects.get(user=request.user)
-#                 new_comment.post = post
-#                 new_comment.author = customer
-#                 new_comment.save()
-#                 return redirect('post-detail', pk=post.pk)
-#         elif 'reply_form' in request.POST:
-#             reply_form = ReplyForm(request.POST)
-#             if reply_form.is_valid():
-#                 parent_id = request.POST.get('parent_id')
-#                 parent_comment = get_object_or_404(Comment, id=parent_id)
-#                 new_reply = reply_form.save(commit=False)
-#                 customer = Customer.objects.get(user=request.user)
-#                 new_reply.post = post
-#                 new_reply.author = customer
-#                 new_reply.parent = parent_comment
-#                 new_reply.save()
-#                 return redirect('post-detail', pk=post.pk)
-#     else:
-#         comment_form = CommentForm()
-
-#     context = {
-#         'post': post,
-#         'comments': comments,
-#         'comment_form': comment_form,
-#         'reply_form': reply_form,
-#     }
-
-#     return render(request, 'blog/post_detail.html', context)
-
 
 
 
