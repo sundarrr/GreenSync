@@ -1,5 +1,4 @@
 from django.conf.urls.static import static
-from django.contrib.auth import admin, views
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
 
@@ -8,11 +7,9 @@ from .views import (
     admin_add_product_view,
     admin_dashboard_view,
     admin_products_view,
-    admin_view_booking_view,
     afterlogin_view,
     add_to_cart_view,
     cart_view,
-    customer_address_view,
     home_view,
     customer_address_view,
     customer_home_view,
@@ -34,9 +31,6 @@ from .views import (
     add_category_view,
     update_category_view,
     delete_category_view,
-    admin_categories_view,
-    PostListView,
-    PostDetailView,
     PostCreateView,
     PostUpdateView,
     PostDeleteView,
@@ -47,16 +41,21 @@ from .views import (
     search,
     admin_categories_view,
     autosuggest,
-    event_view, admin_portal_view
+    event_view,
+    admin_portal_view,
+    register_event,
+    cancel_registration
 )
 
 urlpatterns = [
     path('', home_view, name=''),
     path('afterlogin', afterlogin_view, name='afterlogin'),
     path('logout', LogoutView.as_view(template_name='ecom/v2/logout/logout.html'), name='logout'),
-    path('dashboard', dashboard),
+    path('dashboard', dashboard, name='dashboard'),
     path('search', search_view, name='search'),
     path('autosuggest/', autosuggest, name='autosuggest'),
+    path('register_event/<int:event_id>/', register_event, name='register_event'),
+    path('cancel_registration/<int:event_id>/', cancel_registration, name='cancel_registration'),
     path('events/', event_view, name='events'),
 
     path('adminclick', adminclick_view),
@@ -79,7 +78,7 @@ urlpatterns = [
     path('my-order', my_order_view, name='my-order'),
     path('my-profile', my_profile_view, name='my-profile'),
     path('edit-profile', edit_profile_view, name='edit-profile'),
-    path('download-invoice/<int:orderID>/<int:productID>', download_invoice_view, name='download-invoice'),
+    path('download-invoice/<int:orderID>', download_invoice_view, name='download-invoice'),
 
     path('add-to-cart/<int:pk>', add_to_cart_view, name='add-to-cart'),
     path('cart', cart_view, name='cart'),
@@ -91,7 +90,6 @@ urlpatterns = [
     path('add-category/', add_category_view, name='add-category'),
     path('update-category/<int:pk>/', update_category_view, name='update-category'),
     path('delete-category/<int:pk>/', delete_category_view, name='delete-category'),
-    # Add other URLs here
 
     path('forum', home, name='blog-home'),
     path('user/<str:username>', UserPostListView.as_view(), name='user-posts'),

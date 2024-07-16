@@ -19,7 +19,7 @@ from .models import Category, Comment, Customer, Admin, Product, Orders
 from .forms import CategoryForm, ReplyForm, CommentForm
 from .models import Category, User
 from .forms import CategoryForm
-from adminPortal.models import Event, EventCategory
+from adminPortal.models import Event, EventCategory, EventRegistration
 
 #QA Forum
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -41,7 +41,7 @@ from django.views.generic import (
     DeleteView
 )
 def home_view(request):
-    products = models.Product.objects.all()
+    products = Product.objects.all()
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
         counter = product_ids.split('|')
@@ -50,14 +50,50 @@ def home_view(request):
         product_count_in_cart = 0
     if request.user.is_authenticated:
         return HttpResponseRedirect('customer-home')
-    return render(request, 'ecom/v2/home/index.html',
-                  {'products': products, 'product_count_in_cart': product_count_in_cart})
+    return render(request, 'ecom/v2/home/index.html', {'products': products, 'product_count_in_cart': product_count_in_cart})
+
+@login_required
+def register_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    user = request.user
+
+    if event.registration_count >= event.maximum_attende:
+        messages.error(request, "This event is full. Registration is not possible.")
+        return redirect('events')
+
+    registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
+    if created:
+        messages.success(request, f"You have successfully registered for {event.name} event.")
+    else:
+        messages.info(request, f"You are already registered for {event.name} event.")
+    return redirect('events')
+
+@login_required
+def cancel_registration(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    user = request.user
+
+    try:
+        registration = EventRegistration.objects.get(event=event, user=user)
+        registration.delete()
+        messages.success(request, f"You have successfully canceled your registration for {event.name} event.")
+    except EventRegistration.DoesNotExist:
+        messages.error(request, "You are not registered for this event.")
+
+    return redirect('events')
+
+@login_required
 def event_view(request):
     events = Event.objects.all()
     categories = EventCategory.objects.all()
+    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else []
+    registered_event_ids = registrations.values_list('event_id', flat=True)
+    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in events}
     context = {
         'events': events,
         'categories': categories,
+        'registered_event_ids': registered_event_ids,
+        'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
@@ -116,7 +152,7 @@ def admin_dashboard_view(request):
     ordered_products = []
     ordered_bys = []
     for order in orders:
-        ordered_product = Product.objects.all().filter(id=order.product.id)
+        ordered_product = order.products.all()
         ordered_by = Customer.objects.all().filter(id=order.customer.id)
         ordered_products.append(ordered_product)
         ordered_bys.append(ordered_by)
@@ -167,16 +203,19 @@ def update_product_view(request, pk):
 
 @login_required(login_url='adminlogin')
 def admin_view_booking_view(request):
-    orders = models.Orders.objects.all()
-    ordered_products = []
-    ordered_bys = []
+    orders = Orders.objects.all()
+    data = []
+
     for order in orders:
-        ordered_product = models.Product.objects.all().filter(id=order.product.id)
-        ordered_by = models.Customer.objects.all().filter(id=order.customer.id)
-        ordered_products.append(ordered_product)
-        ordered_bys.append(ordered_by)
-    return render(request, 'ecom/v2/admin/admin_view_booking.html',
-                  {'data': zip(ordered_products, ordered_bys, orders)})
+        ordered_products = order.products.all()
+        ordered_by = Customer.objects.get(id=order.customer.id)
+        data.append({
+            'order': order,
+            'products': ordered_products,
+            'customer': ordered_by
+        })
+
+    return render(request, 'ecom/v2/admin/admin_view_booking.html', {'data': data})
 
 
 @login_required(login_url='adminlogin')
@@ -330,7 +369,6 @@ def remove_from_cart_view(request, pk):
         response.set_cookie('product_ids', value)
         return response
 
-
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
 def customer_home_view(request):
@@ -400,30 +438,42 @@ def customer_address_view(request):
 @login_required(login_url='customerlogin')
 def payment_success_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
-    products = None
+    products = []
     email = None
     mobile = None
     address = None
+
+    # Retrieve products from cookies
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
-        if product_ids != "":
+        if product_ids:
             product_id_in_cart = product_ids.split('|')
-            products = models.Product.objects.all().filter(id__in=product_id_in_cart)
-            # Here we get products list that will be ordered by one customer at a time
+            products = models.Product.objects.filter(id__in=product_id_in_cart)
+            for product in products:
+                print(product.name)  # Debugging statement, consider removing in production
 
-    # these things can be change so accessing at the time of order...
-    if 'email' in request.COOKIES:
-        email = request.COOKIES['email']
-    if 'mobile' in request.COOKIES:
-        mobile = request.COOKIES['mobile']
-    if 'address' in request.COOKIES:
-        address = request.COOKIES['address']
+    # Retrieve additional customer details from cookies
+    email = request.COOKIES.get('email')
+    mobile = request.COOKIES.get('mobile')
+    address = request.COOKIES.get('address')
+
     try:
-        for product in products:
-            models.Orders.objects.get_or_create(customer=customer, product=product, status='Pending', email=email,
-                                                mobile=mobile, address=address)
+        # Create a new order
+        order = models.Orders.objects.create(
+            customer=customer,
+            email=email,
+            mobile=mobile,
+            address=address,
+            status='Pending'
+        )
+
+        # Add products to the order
+        order.products.set(products)
+        order.save()
     except Exception as e:
-        pass
+        print(e)  # For debugging, consider logging in production
+
+    # Render the payment success page and clear cookies
     response = render(request, 'ecom/v2/cart/payment_success.html')
     response.delete_cookie('product_ids')
     response.delete_cookie('email')
@@ -434,14 +484,23 @@ def payment_success_view(request):
 
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
+# def my_order_view(request):
+#     customer = models.Customer.objects.get(user_id=request.user.id)
+#     orders = models.Orders.objects.all().filter(customer_id=customer)
+#     ordered_products = []
+#     for order in orders:
+#         ordered_product = models.Product.objects.all().filter(id=order.product.id)
+#         ordered_products.append(ordered_product)
+#     return render(request, 'ecom/v2/cart/my_order.html', {'data': zip(ordered_products, orders)})
 def my_order_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
-    orders = models.Orders.objects.all().filter(customer_id=customer)
-    ordered_products = []
-    for order in orders:
-        ordered_product = models.Product.objects.all().filter(id=order.product.id)
-        ordered_products.append(ordered_product)
-    return render(request, 'ecom/v2/cart/my_order.html', {'data': zip(ordered_products, orders)})
+    order = models.Orders.objects.filter(customer_id=customer).order_by('-id').first()
+    products = []
+    if order:
+        products = order.products.all()
+
+    return render(request, 'ecom/v2/cart/my_order.html',
+                  {'order': order, 'products': products})
 
 
 def render_to_pdf(template_src, context_dict):
@@ -456,9 +515,22 @@ def render_to_pdf(template_src, context_dict):
 
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
-def download_invoice_view(request, orderID, productID):
-    order = models.Orders.objects.get(id=orderID)
-    product = models.Product.objects.get(id=productID)
+def download_invoice_view(request, orderID):
+    order = get_object_or_404(models.Orders, id=orderID)
+    products = order.products.all()  # Assuming there's a related name `products` in the Orders model.
+    print("invoice")
+    for product in products:
+        print(product.name)
+    product_list = []
+    for product in products:
+        product_info = {
+            'productName': product.name,
+            'productImage': product.product_image,
+            'productPrice': product.price,
+            'productDescription': product.description,
+        }
+        product_list.append(product_info)
+
     mydict = {
         'orderDate': order.order_date,
         'customerName': request.user,
@@ -466,12 +538,10 @@ def download_invoice_view(request, orderID, productID):
         'customerMobile': order.mobile,
         'shipmentAddress': order.address,
         'orderStatus': order.status,
-        'productName': product.name,
-        'productImage': product.product_image,
-        'productPrice': product.price,
-        'productDescription': product.description,
+        'products': product_list,
     }
-    return render_to_pdf('ecom/download_invoice.html', mydict)
+
+    return render_to_pdf('ecom/v2/base/download_invoice.html', mydict)
 
 
 @login_required(login_url='customerlogin')
@@ -560,7 +630,6 @@ def home(request):
         'comments': comments,
     }
     return render(request, 'blog/home.html', context)
-
 
 
 class HomeView(TemplateView):

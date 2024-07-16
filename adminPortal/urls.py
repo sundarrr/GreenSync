@@ -25,10 +25,12 @@ from .views import (
     UserMarkList,
     search_event_category,
     search_event,
-    create_event,
+    create_event, registration_details_view, event_user_details_view,
 )
 
 urlpatterns = [
+    path('registration-details/', registration_details_view, name='registration-details'),
+    path('event-user-details/<int:event_id>/', event_user_details_view, name='event-user-details'),
     path('category-list/', EventCategoryListView.as_view(), name='event-category-list'),
     path('create-category/', EventCategoryCreateView.as_view(), name='create-event-category'),
     path('category/<int:pk>/edit/', EventCategoryUpdateView.as_view(), name='edit-event-category'),

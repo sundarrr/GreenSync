@@ -13,51 +13,59 @@
 
 {% include 'ecom/v2/base/header_admin.html' %}
 <div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h3 class="panel-title">Total Orders</h3>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Total Orders</h3>
+        </div>
+        <br><br>
+        <table class="table table-hover" id="dev-table">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Customer Mobile</th>
+                    <th>Shipment Address</th>
+                    <th>Product Name</th>
+                    <th>Product Picture</th>
+                    <th>Status</th>
+                    <th>Update Status</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+                <tr>
+                    <td>{{ item.customer.user }}</td>
+                    <td>{{ item.customer.mobile }}</td>
+                    <td>{{ item.order.address }}</td>
+                    <td>
+                        <table class="nested-table">
+                            {% for product in item.products %}
+                            <tr>
+                                <td>{{ product.name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td>
+                        <table class="nested-table">
+                            {% for product in item.products %}
+                            <tr>
+                                <td><img src="{{ product.product_image.url }}" alt="product picture" height="40px" width="40px" /></td>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td>{{ item.order.status }}</td>
+                    <td><a class="btn btn-primary btn-xs" href="{% url 'update-order' item.order.id %}"><span class="fa fa-edit"></span></a></td>
+                    <td><a class="btn btn-danger btn-xs" href="{% url 'delete-order' item.order.id %}"><span class="fa fa-trash"></span></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  <br><br>
-    <table class="table table-hover" id="dev-table">
-      <thead>
-        <tr>
-          <th>Customer Name</th>
-          <th>Customer Mobile</th>
-          <th>Shipment Address</th>
-          <th>Product Name</th>
-          <th>Product Picture</th>
-          <th>Status</th>
-          <th>Update Status</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <!-- p for product, c for customer-->
-      {% for product,customer,order in data %}
-      <tr>
-        {% for c in customer %}
-        <td> {{c.get_name}}</td>
-        <td>{{c.mobile}}</td>
-        <td>{{order.address}}</td>
-
-        {% endfor %}
-        {% for p in product %}
-        <td> {{p.name}}</td>
-        <td> <img src="{% static p.product_image.url %}" alt="Profile Pic" height="40px" width="40px" /></td>
-        <td>{{order.status}}</td>
-        <td><a class="btn btn-primary btn-xs" href="{% url 'update-order' order.id  %}"><span class="fa fa-edit"></span></a></td>
-        <td><a class="btn btn-danger btn-xs" href="{% url 'delete-order' order.id  %}"><span class="fa fa-trash"></span></a></td>
-
-        {% endfor %}
-
-
-
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
 </div>
 
 <br><br>
+
 {% include 'ecom/v2/base/footer.html' %}
 {% include 'ecom/v2/base/js.html' %}
 </body>

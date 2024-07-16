@@ -1,3 +1,7 @@
+from datetime import timedelta
+
+from django.db.models import Count
+from django.utils.timezone import now
 from django.views.generic import (
     ListView,
     CreateView,
@@ -6,15 +10,17 @@ from django.views.generic import (
     DeleteView,
     View,
 )
+from adminPortal.models import EventRegistration
+
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from django.shortcuts import render, redirect
+
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from django.contrib.auth.models import User
-from .models import EventCategory, Event
 from .forms import LoginForm, EventForm, EventImageForm, EventAgendaForm, EventCreateMultiForm
 
 from .models import (
@@ -23,9 +29,30 @@ from .models import (
     EventMember,
     EventUserWishList,
     UserCoin
-
 )
 
+def is_admin(user):
+    return user.is_staff
+
+@login_required
+@user_passes_test(is_admin)
+def registration_details_view(request):
+    registrations = EventRegistration.objects.registration_details()
+    context = {
+        'registrations': registrations,
+    }
+    return render(request, 'events/registration_details.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def event_user_details_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    registrations = EventRegistration.objects.filter(event=event)
+    context = {
+        'event': event,
+        'registrations': registrations,
+    }
+    return render(request, 'events/event_user_details.html', context)
 
 # Event category list view
 class EventCategoryListView(LoginRequiredMixin, ListView):
@@ -90,7 +117,7 @@ def create_event(request):
         'form_2': event_agenda_form,
         'ctg': catg
     }
-    return render(request, 'events/create.html', context)
+    return render(request, 'events/create_event.html', context)
 
 
 class EventCreateView(LoginRequiredMixin, CreateView):
@@ -280,20 +307,21 @@ def search_event(request):
     return render(request, 'events/event_list.html')
 
 
-
-@login_required(login_url='login')
+@login_required
+@user_passes_test(is_admin)
 def dashboard(request):
-    user = User.objects.count()
-    event_ctg = EventCategory.objects.count()
-    event = Event.objects.count()
-    complete_event = Event.objects.filter(status='completed').count()
+    event_ctg = Event.objects.count()
     events = Event.objects.all()
+    event = Event.objects.count()
+    user = EventRegistration.objects.registrations_last_week()
+    complete_event = Event.objects.filter(status='completed').count()
+
     context = {
-        'user': user,
         'event_ctg': event_ctg,
         'event': event,
+        'events': events,
+        'user': user,
         'complete_event': complete_event,
-        'events': events
     }
     return render(request, 'dashboard.html', context)
 

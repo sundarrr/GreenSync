@@ -27,7 +27,7 @@ from adminPortal.views import dashboard, login_page, logut_page
 urlpatterns = [
     # Event management routes
     path('e_admin/', include('adminPortal.urls')),
-    path('e_dashboard/', dashboard, name='dashboard'),
+    path('e_dashboard/', dashboard, name='e_dashboard'),
     path('e_login/', login_page, name='login'),
 
     path('e_logout/', logut_page, name='logout'),

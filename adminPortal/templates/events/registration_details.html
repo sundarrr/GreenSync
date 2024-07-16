@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+{% block title %}Registration Details{% endblock title %}
+{% block breadcrumb %}Registration Details{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Registration Details</h5>
+            </div>
+            <div class="card-body">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Number of Registrations</th>
+                            <th>View list</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registration in registrations %}
+                          <tr>
+                              <td>{{ registration.event__name }}</td>
+                              <td>{{ registration.count }}</td>
+                              <td>
+                                  <a class="btn btn-info" href="{% url 'event-user-details' registration.event__id %}" title="view">
+                                      <i class="fa fa-eye"></i>
+                                  </a>
+                              </td>
+                          </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
