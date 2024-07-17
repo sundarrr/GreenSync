@@ -27,6 +27,10 @@ src="https://media.licdn.com/dms/image/D560BAQHObNJRmUcxDw/company-logo_200_200/
     """
         html_message = MIMEText(body, 'html')
         html_message['Subject'] = subject
+        # print("subject")
+        # print(subject)
+        # print(recipient_email)
+        # print(html_message.as_string())
         html_message['From'] = "bcstechnologies.in@gmail.com"
         html_message['To'] = recipient_email
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:

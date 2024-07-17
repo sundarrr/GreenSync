@@ -56,7 +56,9 @@ def home_view(request):
 def register_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
-
+    print("user", user)
+    print("user", user.email)
+    print("user", user.username)
     if event.registration_count >= event.maximum_attende:
         messages.error(request, "This event is full. Registration is not possible.")
         return redirect('events')
@@ -64,6 +66,10 @@ def register_event(request, event_id):
     registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
     if created:
         messages.success(request, f"You have successfully registered for {event.name} event.")
+        send_email(user.email,
+                   'Event Registration Successful',
+                   f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
+
     else:
         messages.info(request, f"You are already registered for {event.name} event.")
     return redirect('events')
@@ -76,6 +82,9 @@ def cancel_registration(request, event_id):
     try:
         registration = EventRegistration.objects.get(event=event, user=user)
         registration.delete()
+        send_email(user.email,
+                   'Event Registration Canceled',
+                   f'Hi {user.first_name},<br><br>Your registration for the {event.name} event has been successfully canceled.<br><br>Regards,<br>EcoGreenSmart Team')
         messages.success(request, f"You have successfully canceled your registration for {event.name} event.")
     except EventRegistration.DoesNotExist:
         messages.error(request, "You are not registered for this event.")
@@ -455,7 +464,9 @@ def payment_success_view(request):
     email = None
     mobile = None
     address = None
-
+    product_details = "<br><br>Order details:<ul>"
+    total = 0
+    address = ""
     # Retrieve products from cookies
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
@@ -463,7 +474,13 @@ def payment_success_view(request):
             product_id_in_cart = product_ids.split('|')
             products = models.Product.objects.filter(id__in=product_id_in_cart)
             for product in products:
+                product_details += f'<li>{product.name}: ${product.price}</li>'
+                total += product.price
                 print(product.name)  # Debugging statement, consider removing in production
+
+    product_details += "</ul>"
+    product_details += "<br><br>Total: $" + str(total)
+    product_details += "<br><br>"
 
     # Retrieve additional customer details from cookies
     email = request.COOKIES.get('email')
@@ -483,6 +500,10 @@ def payment_success_view(request):
         # Add products to the order
         order.products.set(products)
         order.save()
+        send_email(email,
+                   'Order Confirmation',
+                   f'Hi {customer.user.first_name},<br><br>Your order has been placed successfully.<ul>{product_details}</ul><br>Regards,<br>EcoGreenSmart Team')
+
     except Exception as e:
         print(e)  # For debugging, consider logging in production
 
