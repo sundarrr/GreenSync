@@ -20,17 +20,21 @@
         <img class="rounded-circle article-img" src="{{ post.author.profile_pic }}">
         <div class="media-body">
             <div class="article-metadata">
-                <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}">{{ post.author }}</a>
+                {% if post.author.user.username %}
+                    <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}">{{ post.author }}</a>
+                {% else %}
+                    <span>{{ post.author }}</span>
+                {% endif %}
                 <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
             </div>
             <h2 class="article-title">{{ post.title }}</h2>
             <p class="article-content">{{ post.content }}</p>
             {% if post.file %}
-            <a href="{{ post.file.url }}" download>Download</a>
+                <a href="{{ post.file.url }}" download>Download</a>
             {% endif %}
             {% if request.user == post.author.user %}
-            <a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
-            <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+                <a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>
             {% endif %}
         </div>
     </article>
@@ -38,39 +42,45 @@
     <section class="comment-section">
         <h2>Comments</h2>
         {% for comment in comments %}
-        <div class="media mb-3">
-          <img class="rounded-circle article-img" src="{{ comment.author.profile_pic }}" style="width: 40px; height: 40px;">
-
-            <div class="media-body">
-                <div class="article-metadata">
-                    <a class="mr-2" href="{% url 'user-posts' comment.author.user.username %}">{{ comment.author }}</a>
-                    <small class="text-muted">{{ comment.date_posted|date:"F d, Y" }}</small>
-                </div>
-                <p class="article-content">{{ comment.content }}</p>
-                <button type="button" class="btn btn-link reply-btn" data-toggle="collapse" data-target="#reply-{{ comment.id }}">Reply</button>
-                <div id="reply-{{ comment.id }}" class="collapse">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ reply_form.as_p }}
-                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                        <button type="submit" name="reply_form" class="btn btn-primary">Reply</button>
-                    </form> 
-                </div>
-               {% for reply in comment.replies.all %}
-                <div class="media mt-3">
-                  <img class="rounded-circle article-img" src="{{ reply.author.profile_pic }}" style="width: 40px; height: 40px;">
-
-                    <div class="media-body">
-                        <div class="article-metadata">
-                            <a class="mr-2" href="{% url 'user-posts' reply.author.username %}">{{ reply.author }}</a>
-                            <small class="text-muted">{{ reply.date_posted|date:"F d, Y" }}</small>
-                        </div>
-                        <p class="article-content">{{ reply.content }}</p>
+            <div class="media mb-3">
+                <img class="rounded-circle article-img" src="{{ comment.author.profile_pic }}" style="width: 40px; height: 40px;">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        {% if comment.author.user.username %}
+                            <a class="mr-2" href="{% url 'user-posts' comment.author.user.username %}">{{ comment.author }}</a>
+                        {% else %}
+                            <span>{{ comment.author }}</span>
+                        {% endif %}
+                        <small class="text-muted">{{ comment.date_posted|date:"F d, Y" }}</small>
                     </div>
-                </div> 
-                {% endfor %}
+                    <p class="article-content">{{ comment.content }}</p>
+                    <button type="button" class="btn btn-link reply-btn" data-toggle="collapse" data-target="#reply-{{ comment.id }}">Reply</button>
+                    <div id="reply-{{ comment.id }}" class="collapse">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ reply_form.as_p }}
+                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                            <button type="submit" name="reply_form" class="btn btn-primary">Reply</button>
+                        </form> 
+                    </div>
+                    {% for reply in comment.replies.all %}
+                        <div class="media mt-3">
+                            <img class="rounded-circle article-img" src="{{ reply.author.profile_pic }}" style="width: 40px; height: 40px;">
+                            <div class="media-body">
+                                <div class="article-metadata">
+                                    {% if reply.author.username %}
+                                        <a class="mr-2" href="{% url 'user-posts' reply.author.username %}">{{ reply.author }}</a>
+                                    {% else %}
+                                        <span>{{ reply.author }}</span>
+                                    {% endif %}
+                                    <small class="text-muted">{{ reply.date_posted|date:"F d, Y" }}</small>
+                                </div>
+                                <p class="article-content">{{ reply.content }}</p>
+                            </div>
+                        </div> 
+                    {% endfor %}
+                </div>
             </div>
-        </div>
         {% endfor %}
     </section>
 
