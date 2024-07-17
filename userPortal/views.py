@@ -122,8 +122,7 @@ def event_view(request):
 
 
 def adminclick_view(request):
-    if request.user.is_authenticated:
-        return HttpResponseRedirect('admin-dashboard')
+    return HttpResponseRedirect('admin-dashboard')
 
 
 def customer_signup_view(request):

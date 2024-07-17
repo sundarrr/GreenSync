@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-+$i1&wst0u^(77^vw9x*&fkc+pk*c+%w!fb1@hr)3k(=sr+!^o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["ecogreenmart.in","www.ecogreenmart.in"]
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
