@@ -30,6 +30,7 @@
                 <th>Price</th>
                 <th>Description</th>
                 <th>Category</th>
+                <th>Stock</th>
                 <th>Update</th>
                 <th>Delete</th>
             </tr>
@@ -44,6 +45,7 @@
                         <td>{{ p.price }}</td>
                         <td>{{ p.description }}</td>
                         <td>{{ p.category }}</td>
+                        <td>{{ p.stock }}</td>
                         <td><a class="btn btn-primary btn-xs" href="{% url 'update-product' p.id %}"><span
                                 class="fa fa-edit"></span></a></td>
                         <td><a class="btn btn-danger btn-xs" href="{% url 'delete-product' p.id %}"><span

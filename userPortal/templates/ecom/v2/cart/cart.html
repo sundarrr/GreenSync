@@ -44,11 +44,11 @@
         
                     <!-- Update Quantity Column -->
                     <td>
-                        <a class="btn btn-default btn-xs" href="{% url 'decrease-quantity' p.product.id %}">
+                        <a class="btn btn-default btn-xs" {% if p.quantity > 1 %} href="{% url 'decrease-quantity' p.product.id %}" {% endif %}>
                             <i class="fa fa-minus"></i>
                         </a>
                         {{ p.quantity }}
-                        <a class="btn btn-default btn-xs" href="{% url 'increase-quantity' p.product.id %}">
+                        <a class="btn btn-default btn-xs" {% if p.product.stock >= p.quantity %} href="{% url 'increase-quantity' p.product.id %}" {% endif %}>
                             <i class="fa fa-plus"></i>
                         </a>
                     </td>

@@ -21,17 +21,16 @@ from .models import Category, User, Cart, CartProduct
 from .forms import CategoryForm
 from adminPortal.models import Event, EventCategory, EventRegistration
 
-#QA Forum
+# QA Forum
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
 
-
 from django.http.response import (
     JsonResponse
- )
+)
 
 from django.views.generic import (
     ListView,
@@ -40,6 +39,8 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
+
+
 # def home_view(request):
 #     products = Product.objects.all()
 #     if 'product_ids' in request.COOKIES:
@@ -54,11 +55,18 @@ from django.views.generic import (
 
 def home_view(request):
     products = Product.objects.all()
-    cart = get_cart(request)
-    product_count_in_cart = cart['product_count_in_cart']
+
+    print(f"user {request.user.is_authenticated}")
+    if request.user.is_authenticated:
+        cart = get_cart(request)
+        product_count_in_cart = cart['product_count_in_cart']
+    else:
+        product_count_in_cart = 0
+
     if request.user.is_authenticated:
         return HttpResponseRedirect('customer-home')
-    return render(request, 'ecom/v2/home/index.html', {'products': products, 'product_count_in_cart': product_count_in_cart})
+    return render(request, 'ecom/v2/home/index.html',
+                  {'products': products, 'product_count_in_cart': product_count_in_cart})
 
 
 @login_required
@@ -77,6 +85,7 @@ def register_event(request, event_id):
         messages.info(request, f"You are already registered for {event.name} event.")
     return redirect('events')
 
+
 @login_required
 def cancel_registration(request, event_id):
     event = get_object_or_404(Event, id=event_id)
@@ -91,13 +100,15 @@ def cancel_registration(request, event_id):
 
     return redirect('events')
 
+
 @login_required
 def event_view(request):
     events = Event.objects.all()
     categories = EventCategory.objects.all()
     registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else []
     registered_event_ids = registrations.values_list('event_id', flat=True)
-    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in events}
+    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in
+                      events}
     context = {
         'events': events,
         'categories': categories,
@@ -105,6 +116,7 @@ def event_view(request):
         'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
+
 
 def adminclick_view(request):
     if request.user.is_authenticated:
@@ -127,9 +139,9 @@ def customer_signup_view(request):
             customer.save()
             my_customer_group = Group.objects.get_or_create(name='CUSTOMER')
             my_customer_group[0].user_set.add(user)
-            send_email(user.email,'Registration Successful in EcoGreenSmart',
-                   f'Hi {user.first_name}, <br><br> Thank you for registering with EcoGreenSmart. '
-                   f'<br><br> Regards, <br> EcoGreenSmart Team')
+            send_email(user.email, 'Registration Successful in EcoGreenSmart',
+                       f'Hi {user.first_name}, <br><br> Thank you for registering with EcoGreenSmart. '
+                       f'<br><br> Regards, <br> EcoGreenSmart Team')
         return HttpResponseRedirect('customerlogin')
     # return render(request,'ecom/customersignup.html',context=mydict)
     return render(request, 'ecom/v2/signup/customer_signup.html', context=mydict)
@@ -140,20 +152,26 @@ def is_customer(user):
 
 
 def afterlogin_view(request):
-     if is_customer(request.user):
-         return redirect('customer-home')
-     else:
-         return redirect('admin-dashboard')
+    if is_customer(request.user):
+        return redirect('customer-home')
+    else:
+        return redirect('admin-dashboard')
+
 
 def logout_view(request):
     logout(request)
     return redirect('dashboard')
+
+
 def is_admin(user):
     return Admin.objects.filter(user=user).exists()
+
+
 @login_required
 @user_passes_test(is_admin)
 def admin_portal_view(request):
     return redirect('dashboard')
+
 
 @login_required(login_url='adminlogin')
 def admin_dashboard_view(request):
@@ -180,11 +198,13 @@ def admin_dashboard_view(request):
     }
     return render(request, 'ecom/v2/admin/admin_dashboard.html', context=mydict)
 
+
 # admin view the product
 @login_required(login_url='adminlogin')
 def admin_products_view(request):
     products = models.Product.objects.all()
     return render(request, 'ecom/v2/admin/admin_products.html', {'products': products})
+
 
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
@@ -196,6 +216,7 @@ def admin_add_product_view(request):
             productForm.save()
         return HttpResponseRedirect('admin-products')
     return render(request, 'ecom/v2/admin/admin_add_products.html', {'productForm': productForm})
+
 
 @login_required(login_url='adminlogin')
 def delete_product_view(request, pk):
@@ -239,16 +260,26 @@ def delete_order_view(request, pk):
     order.delete()
     return redirect('admin-view-booking')
 
+
 def about_us(request):
     return render(request, 'ecom/v2/base/about_us.html')
+
+
 def details(request):
     return render(request, 'ecom/v2/base/details.html')
+
+
 def contact_us(request):
     return render(request, 'ecom/v2/base/contact_us.html')
+
+
 def terms_and_condition(request):
     return render(request, 'ecom/v2/base/terms.html')
+
+
 def privacy_policy(request):
     return render(request, 'ecom/v2/base/privacy_policy.html')
+
 
 # for changing status of order (pending,delivered...)
 @login_required(login_url='adminlogin')
@@ -279,18 +310,23 @@ def search_view(request):
         products = models.Product.objects.all().filter(name__icontains=query)
 
     categories = models.Category.objects.all()
-    cart = get_cart(request)
-    product_count_in_cart = cart['product_count_in_cart']
-
+    print(f"user {request.user.is_authenticated}")
+    if request.user.is_authenticated:
+        cart = get_cart(request)
+        product_count_in_cart = cart['product_count_in_cart']
+    else:
+        product_count_in_cart = 0
     word = ""
 
     if request.user.is_authenticated:
         return render(request, 'ecom/v2/home/customer_home.html',
                       {'products': products, 'word': word, 'product_count_in_cart': product_count_in_cart,
                        'categories': categories})
+
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
                    'product_count_in_cart': product_count_in_cart})
+
 
 # def search_view(request):
 #     # whatever user write in search box we get in query
@@ -328,7 +364,7 @@ def add_to_cart_view(request, product_id):
 
     # Check if cart exists for the session or user
     cart, created = Cart.objects.get_or_create(customer=thisCustomer)  # Adjust based on your user handling
-    
+
     # Check if product is already in the cart
     cart_product, created = CartProduct.objects.get_or_create(cart=cart, product=product)
     if not created:
@@ -338,21 +374,21 @@ def add_to_cart_view(request, product_id):
     else:
         # If the product is not in the cart, it's added with default quantity=1 (handled by get_or_create)
         pass
-    
+
     # Redirect to cart view or send a success response
     return redirect('cart')
 
 
 def remove_from_cart_view(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    
+
     thisCustomer = models.Customer.objects.get(user_id=request.user.id)
     # Assuming the user's cart is identified by their session or user object
     cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
-    
+
     # Find the CartProduct instance
     cart_product = get_object_or_404(CartProduct, cart=cart, product=product)
-    
+
     # Remove the product from the cart by deleting the CartProduct instance
     cart_product.delete()
     # response = render(request, 'ecom/v2/home/index.html',
@@ -361,44 +397,47 @@ def remove_from_cart_view(request, product_id):
     # Redirect to cart view or send a success response
     return redirect('cart')  # Adjust 'cart_view' to your cart's view name or URL
 
-def update_quantity(request, product_id, should_increase= True):
+
+def update_quantity(request, product_id, should_increase=True):
     product = get_object_or_404(Product, id=product_id)
-    
+
     thisCustomer = models.Customer.objects.get(user_id=request.user.id)
     # Assuming the user's cart is identified by their session or user object
     cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
-    
+
     # Find the CartProduct instance
     cart_product = get_object_or_404(CartProduct, cart=cart, product=product)
-    
+
     # Update the quantity of the product in the cart
     if should_increase:
-        cart_product.quantity = cart_product.quantity+1
+        cart_product.quantity = cart_product.quantity + 1
     else:
-        cart_product.quantity = cart_product.quantity-1
+        cart_product.quantity = cart_product.quantity - 1
     cart_product.save()
+
 
 def increase_quantity(request, product_id):
     update_quantity(request, product_id, True)
     return redirect('cart')  # Adjust 'cart_view' to your cart's view name or URL
 
+
 def decrease_quantity(request, product_id):
     update_quantity(request, product_id, False)
     return redirect('cart')  # Adjust 'cart_view' to your cart's view name or URL
 
+
 def get_cart(request):
-    
     thisCustomer = models.Customer.objects.get(user_id=request.user.id)
     # Assuming the user's cart is identified by their session or user object
     cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
-    
+
     # Get all CartProduct instances related to this cart
     cart_products = CartProduct.objects.filter(cart=cart)
-    
+
     # Calculate total (optional)
     total = sum(cp.product.price * cp.quantity for cp in cart_products)
     product_count_in_cart = sum(cp.quantity for cp in cart_products)
-    
+
     # Pass cart details to the template
     context = {
         'products': cart_products,
@@ -406,6 +445,7 @@ def get_cart(request):
         'product_count_in_cart': product_count_in_cart
     }
     return context
+
 
 def cart_view(request):
     return render(request, 'ecom/v2/cart/cart.html', get_cart(request))
@@ -517,6 +557,7 @@ def customer_home_view(request):
     return render(request, 'ecom/v2/home/customer_home.html',
                   {'products': products, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
+
 # @login_required(login_url='customerlogin')
 # @user_passes_test(is_customer)
 # def customer_home_view(request):
@@ -607,6 +648,7 @@ def customer_address_view(request):
                   {'addressForm': addressForm, 'product_in_cart': product_in_cart,
                    'product_count_in_cart': product_count_in_cart})
 
+
 @login_required(login_url='customerlogin')
 def payment_success_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
@@ -628,7 +670,7 @@ def payment_success_view(request):
         order.save()
         # Delete the cart for the customer
         cart_model_instance.cartproduct_set.all().delete()
-        
+
         # Delete the cart for the customer
         cart_model_instance.delete()
     except Exception as e:
@@ -639,6 +681,7 @@ def payment_success_view(request):
     response.delete_cookie('mobile')
     response.delete_cookie('address')
     return response
+
 
 # @login_required(login_url='customerlogin')
 # def payment_success_view(request):
@@ -738,7 +781,6 @@ def render_to_pdf(template_src, context_dict):
 #     return render_to_pdf('ecom/download_invoice.html', mydict)
 
 
-
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
 def download_invoice_view(request, orderID):
@@ -809,6 +851,7 @@ def dashboard(request):
     }
     return render(request, 'ecom/v2/home/user-dashboard.html', context)
 
+
 def add_category_view(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -847,7 +890,7 @@ def delete_category_view(request, pk):
     return render(request, 'ecom/v2/admin/category/delete_category.html', {'category': category})
 
 
-#view functions for QA Forum App
+# view functions for QA Forum App
 
 def home(request):
     posts = Post.objects.all()
@@ -864,7 +907,6 @@ class HomeView(TemplateView):
     template_name = 'home.html'
 
 
-
 def search(request):
     template = 'blog/home.html'
 
@@ -873,7 +915,7 @@ def search(request):
     result = Post.objects.filter(
         Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
     )
-    
+
     context = {'posts': result}
     return render(request, template, context)
 
@@ -902,7 +944,7 @@ class UserPostListView(ListView):
         # address = models.CharField(max_length=40)
         # mobile = models.CharField(max_length=20, null=False)
         print(self.kwargs.get('username'))
-        user =User.objects.get(username=self.kwargs.get('username'))
+        user = User.objects.get(username=self.kwargs.get('username'))
         return Post.objects.filter(author__user__username=user.username)
 
 
@@ -911,10 +953,7 @@ class PostDetailView(DetailView):
     template_name = 'blog/post_detail.html'
 
 
-
-
-
-#riya Created new
+# riya Created new
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     template_name = 'blog/post_form.html'
@@ -926,9 +965,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-
-
-#Riya addede new to update
+# Riya addede new to update
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     template_name = 'blog/post_form.html'
@@ -944,8 +981,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == post.author.user
 
 
-    
-
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     success_url = reverse_lazy('home')
@@ -958,7 +993,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
-
 
 
 def post_detail(request, pk):
