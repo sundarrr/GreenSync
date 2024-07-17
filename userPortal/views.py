@@ -512,7 +512,8 @@ def payment_success_view(request):
         order.save()
         send_email(email,
                    'Order Confirmation',
-                   f'Hi {customer.user.first_name},<br><br>Your order has been placed successfully.<ul>{product_details}</ul><br>Regards,<br>EcoGreenSmart Team')
+                   f'Hi {customer.user.first_name},<br><br>Your order has been placed '
+                   f'successfully.<ul>{product_details}</ul><br>Regards,<br>EcoGreenSmart Team')
 
     except Exception as e:
         print(e)  # For debugging, consider logging in production

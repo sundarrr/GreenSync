@@ -849,16 +849,37 @@ ol {
 	margin-right: 0;
 }
 
+@keyframes bottomUpTransition {
+	from {
+	  transform: translateY(100%); /* Start from below the normal position */
+	  opacity: 0; /* Start from fully transparent */
+	}
+	to {
+	  transform: translateY(0); /* End at the normal position */
+	  opacity: 1; /* End at fully opaque */
+	}
+  }
+  
+
 .featured__item {
 	margin-bottom: 50px;
+	animation: bottomUpTransition 2s ease-out forwards;
+	transition: transform 1s ease-in-out, opacity 1s ease-in-out;
 }
 
 .featured__item:hover .featured__item__pic .featured__item__pic__hover {
 	bottom: 20px;
 }
 
+.featured__item:hover {
+	transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+	transform: scale(1.2);
+	opacity: 0.9;
+}
+
 .featured__item__pic {
-	height: 270px;
+	height: 200px;
+	/* height: 270px; */
 	position: relative;
 	overflow: hidden;
 	background-position: center center;
@@ -942,6 +963,7 @@ ol {
 	color: #252525;
 	font-weight: 700;
 }
+
 
 /*---------------------
   Latest Product
