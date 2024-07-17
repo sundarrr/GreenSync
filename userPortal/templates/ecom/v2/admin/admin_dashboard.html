@@ -79,18 +79,6 @@
 
     </div>
 
-    <!-- The popup -->
-    <div id="adminPopup" class="popup">
-        <div class="popup-content" id="popup-content">
-            <span class="close" id="close-popup">&times;</span>
-            <h2>Admin Verification</h2>
-            <p>Are you sure you want to enter the Admin Portal?</p>
-            <form method="POST" action="{% url 'admin-portal' %}">
-                {% csrf_token %}
-                <button type="submit">Yes, I'm Admin</button>
-            </form>
-        </div>
-    </div>
 </div>
 
 {% if messages %}

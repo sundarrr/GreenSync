@@ -10,7 +10,11 @@
 </head>
 
 <body>
-{% include 'ecom/v2/base/header_after_login.html' %}
+{% if user.is_authenticated %}
+    {% include 'ecom/v2/base/header_after_login.html' %}
+{% else %}
+    {% include 'ecom/v2/base/header.html' %}
+{% endif %}
 
 
 <!-- Hero Section Begin -->

@@ -49,15 +49,17 @@ from .views import (
     details,
     contact_us,
     terms_and_condition,
-    privacy_policy
+    privacy_policy,
+    logout_view,
 )
 
 urlpatterns = [
     path('', home_view, name=''),
     path('afterlogin', afterlogin_view, name='afterlogin'),
-    path('logout', LogoutView.as_view(template_name='ecom/v2/logout/logout.html'), name='logout'),
+    path('logout/', logout_view, name='logout'),
+    #path('logout', LogoutView.as_view(template_name='ecom/v2/logout/logout.html'), name='logout'),
     path('dashboard', dashboard, name='dashboard'),
-    path('search', search_view, name='search'),
+    path('search', search_view, name='product-search'),
     path('autosuggest/', autosuggest, name='autosuggest'),
     path('register_event/<int:event_id>/', register_event, name='register_event'),
     path('cancel_registration/<int:event_id>/', cancel_registration, name='cancel_registration'),

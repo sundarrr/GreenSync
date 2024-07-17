@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.urls import reverse
 
 from adminPortal.models import Event, EventRegistrationManager
@@ -32,6 +32,10 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.user.username
+    def save(self, *args, **kwargs):
+        super(Customer, self).save(*args, **kwargs)
+        customer_group, created = Group.objects.get_or_create(name='CUSTOMER')
+        self.user.groups.add(customer_group)
 
 class Product(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True)

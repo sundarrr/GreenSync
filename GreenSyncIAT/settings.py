@@ -142,6 +142,17 @@ CKEDITOR_CONFIGS = {
 
 BASE_DIR1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# settings.py
+
+# URL to redirect to for login
+LOGIN_URL = "/accounts/login/"
+
+# URL to redirect to after login
+LOGIN_REDIRECT_URL = "/afterlogin"
+
+# URL to redirect to after logout
+LOGOUT_REDIRECT_URL = "/dashboard"
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR1, 'static')]
 

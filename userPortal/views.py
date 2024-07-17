@@ -1,6 +1,8 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
+from django.views.decorators.http import require_POST
+
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -53,7 +55,8 @@ def home_view(request):
         product_count_in_cart = 0
     if request.user.is_authenticated:
         return HttpResponseRedirect('customer-home')
-    return render(request, 'ecom/v2/home/index.html', {'products': products, 'product_count_in_cart': product_count_in_cart})
+    else:
+        return HttpResponseRedirect('dashboard')
 
 @login_required
 def register_event(request, event_id):
@@ -94,7 +97,7 @@ def cancel_registration(request, event_id):
 
     return redirect('events')
 
-@login_required
+@login_required(login_url='customerlogin')
 def event_view(request):
     events = Event.objects.all()
     categories = EventCategory.objects.all()
@@ -109,6 +112,7 @@ def event_view(request):
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
+@login_required(login_url='adminlogin')
 def adminclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('admin-dashboard')
@@ -148,6 +152,9 @@ def afterlogin_view(request):
      else:
          return redirect('admin-dashboard')
 
+def logout_view(request):
+    logout(request)
+    return redirect('dashboard')  # Redirect to a desired page after logout
 def is_admin(user):
     return Admin.objects.filter(user=user).exists()
 @login_required
