@@ -335,7 +335,7 @@ def login_page(request):
             user = authenticate(username=username, password=password)
             if user:
                 login(request, user)
-                return redirect('dashboard')
+                return redirect('e_dashboard')
     context = {
         'form': forms
     }

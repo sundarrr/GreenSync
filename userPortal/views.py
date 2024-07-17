@@ -1,6 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
+from datetime import timezone
+
+from django.contrib.auth import authenticate, login, user_logged_in
 from django.db.models import Count
+from django.dispatch import receiver
 from django.shortcuts import render, redirect, reverse
+from django.views.static import serve
+
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -72,7 +78,7 @@ def home_view(request):
                   {'products': products, 'product_count_in_cart': product_count_in_cart})
 
 
-@login_required
+@login_required(login_url='customerlogin')
 def register_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
@@ -84,6 +90,10 @@ def register_event(request, event_id):
     registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
     if created:
         messages.success(request, f"You have successfully registered for {event.name} event.")
+        send_email(user.email,
+                   'Event Registration Successful',
+                   f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
+
     else:
         messages.info(request, f"You are already registered for {event.name} event.")
     return redirect('events')
@@ -309,7 +319,7 @@ def search_view(request):
     categories = models.Category.objects.all()
     print(f"user {request.user.is_authenticated}")
     if request.user.is_authenticated:
-        
+
         try:
             cart = get_cart(request)
             product_count_in_cart = cart['product_count_in_cart']
@@ -558,6 +568,7 @@ def customer_home_view(request):
         product_count_in_cart = cart['product_count_in_cart']
     except Exception as e:
         product_count_in_cart = 0
+    # return render(request,'ecom/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
     return render(request, 'ecom/v2/home/customer_home.html',
                   {'products': products, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
