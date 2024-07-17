@@ -270,11 +270,6 @@ def about_us(request):
 def details(request):
     return render(request, 'ecom/v2/base/details.html')
 
-
-def contact_us(request):
-    return render(request, 'ecom/v2/base/contact_us.html')
-
-
 def terms_and_condition(request):
     return render(request, 'ecom/v2/base/terms.html')
 
