@@ -1,8 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
-from django.views.decorators.http import require_POST
-
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -19,7 +17,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Comment, Customer, Admin, Product, Orders
 from .forms import CategoryForm, ReplyForm, CommentForm
-from .models import Category, User
+from .models import Category, User, Cart, CartProduct
 from .forms import CategoryForm
 from adminPortal.models import Event, EventCategory, EventRegistration
 
@@ -29,9 +27,6 @@ from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
-from django.shortcuts import render
-from django.db.models import Q
-from .models import Post
 
 
 from django.http.response import (
@@ -55,16 +50,13 @@ def home_view(request):
         product_count_in_cart = 0
     if request.user.is_authenticated:
         return HttpResponseRedirect('customer-home')
-    else:
-        return HttpResponseRedirect('dashboard')
+    return render(request, 'ecom/v2/home/index.html', {'products': products, 'product_count_in_cart': product_count_in_cart})
 
 @login_required
 def register_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
-    print("user", user)
-    print("user", user.email)
-    print("user", user.username)
+
     if event.registration_count >= event.maximum_attende:
         messages.error(request, "This event is full. Registration is not possible.")
         return redirect('events')
@@ -72,10 +64,6 @@ def register_event(request, event_id):
     registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
     if created:
         messages.success(request, f"You have successfully registered for {event.name} event.")
-        send_email(user.email,
-                   'Event Registration Successful',
-                   f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
-
     else:
         messages.info(request, f"You are already registered for {event.name} event.")
     return redirect('events')
@@ -88,16 +76,13 @@ def cancel_registration(request, event_id):
     try:
         registration = EventRegistration.objects.get(event=event, user=user)
         registration.delete()
-        send_email(user.email,
-                   'Event Registration Canceled',
-                   f'Hi {user.first_name},<br><br>Your registration for the {event.name} event has been successfully canceled.<br><br>Regards,<br>EcoGreenSmart Team')
         messages.success(request, f"You have successfully canceled your registration for {event.name} event.")
     except EventRegistration.DoesNotExist:
         messages.error(request, "You are not registered for this event.")
 
     return redirect('events')
 
-@login_required(login_url='customerlogin')
+@login_required
 def event_view(request):
     events = Event.objects.all()
     categories = EventCategory.objects.all()
@@ -112,7 +97,6 @@ def event_view(request):
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
-@login_required(login_url='adminlogin')
 def adminclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('admin-dashboard')
@@ -154,7 +138,7 @@ def afterlogin_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('dashboard')  # Redirect to a desired page after logout
+    return redirect('dashboard')
 def is_admin(user):
     return Admin.objects.filter(user=user).exists()
 @login_required
@@ -270,6 +254,13 @@ def update_order_view(request, pk):
     return render(request, 'ecom/v2/admin/update_order.html', {'orderForm': orderForm})
 
 
+def autosuggest(request):
+    query = request.GET.get('query', '')
+    products = models.Product.objects.filter(name__icontains=query)
+    suggestions = [product.name for product in products]
+    return JsonResponse(suggestions, safe=False)
+
+
 def search_view(request):
     # whatever user write in search box we get in query
     query = request.GET.get('query', "")
@@ -299,107 +290,191 @@ def search_view(request):
                   {'products': products, 'categories': categories, 'word': word,
                    'product_count_in_cart': product_count_in_cart})
 
-# any one can add product to cart, no need of signin
-def add_to_cart_view(request, pk):
-    products = models.Product.objects.all()
 
-    # for cart counter, fetching products ids added by customer from cookies
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        counter = product_ids.split('|')
-        product_count_in_cart = len(set(counter))
+def add_to_cart_view(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    thisCustomer = models.Customer.objects.get(user_id=request.user.id)
+
+    # Check if cart exists for the session or user
+    cart, created = Cart.objects.get_or_create(customer=thisCustomer)  # Adjust based on your user handling
+    
+    # Check if product is already in the cart
+    cart_product, created = CartProduct.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        # If the product is already in the cart, increase the quantity
+        cart_product.quantity += 1
+        cart_product.save()
     else:
-        product_count_in_cart = 1
+        # If the product is not in the cart, it's added with default quantity=1 (handled by get_or_create)
+        pass
+    
+    # Redirect to cart view or send a success response
+    return redirect('cart')
 
-    # response = render(request, 'ecom/index.html',{'products':products,'product_count_in_cart':product_count_in_cart})
-    response = render(request, 'ecom/v2/home/index.html',
-                      {'products': products, 'product_count_in_cart': product_count_in_cart})
 
-    # adding product id to cookies
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        if product_ids == "":
-            product_ids = str(pk)
-        else:
-            product_ids = product_ids + "|" + str(pk)
-        response.set_cookie('product_ids', product_ids)
+def remove_from_cart_view(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    thisCustomer = models.Customer.objects.get(user_id=request.user.id)
+    # Assuming the user's cart is identified by their session or user object
+    cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
+    
+    # Find the CartProduct instance
+    cart_product = get_object_or_404(CartProduct, cart=cart, product=product)
+    
+    # Remove the product from the cart by deleting the CartProduct instance
+    cart_product.delete()
+    # response = render(request, 'ecom/v2/home/index.html',
+    #                   {'products': products, 'product_count_in_cart': product_count_in_cart})
+
+    # Redirect to cart view or send a success response
+    return redirect('cart')  # Adjust 'cart_view' to your cart's view name or URL
+
+def update_quantity(request, product_id, should_increase= True):
+    product = get_object_or_404(Product, id=product_id)
+    
+    thisCustomer = models.Customer.objects.get(user_id=request.user.id)
+    # Assuming the user's cart is identified by their session or user object
+    cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
+    
+    # Find the CartProduct instance
+    cart_product = get_object_or_404(CartProduct, cart=cart, product=product)
+    
+    # Update the quantity of the product in the cart
+    if should_increase:
+        cart_product.quantity = cart_product.quantity+1
     else:
-        response.set_cookie('product_ids', pk)
+        cart_product.quantity = cart_product.quantity-1
+    cart_product.save()
 
-    product = models.Product.objects.get(id=pk)
-    messages.info(request, product.name + ' added to cart successfully!')
+def increase_quantity(request, product_id):
+    update_quantity(request, product_id, True)
+    return redirect('cart')  # Adjust 'cart_view' to your cart's view name or URL
 
-    return response
+def decrease_quantity(request, product_id):
+    update_quantity(request, product_id, False)
+    return redirect('cart')  # Adjust 'cart_view' to your cart's view name or URL
 
-def autosuggest(request):
-    query = request.GET.get('query', '')
-    products = models.Product.objects.filter(name__icontains=query)
-    suggestions = [product.name for product in products]
-    return JsonResponse(suggestions, safe=False)
+def get_cart(request):
+    
+    thisCustomer = models.Customer.objects.get(user_id=request.user.id)
+    # Assuming the user's cart is identified by their session or user object
+    cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
+    
+    # Get all CartProduct instances related to this cart
+    cart_products = CartProduct.objects.filter(cart=cart)
+    
+    # Calculate total (optional)
+    total = sum(cp.product.price * cp.quantity for cp in cart_products)
+    product_count_in_cart = sum(cp.quantity for cp in cart_products)
+    
+    # Pass cart details to the template
+    context = {
+        'products': cart_products,
+        'total': total,
+        'product_count_in_cart': product_count_in_cart
+    }
+    return context
 
-# for checkout of cart
 def cart_view(request):
-    # for cart counter
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        counter = product_ids.split('|')
-        product_count_in_cart = len(set(counter))
-    else:
-        product_count_in_cart = 0
-
-    # fetching product details from db whose id is present in cookie
-    products = None
-    total = 0
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        if product_ids != "":
-            product_id_in_cart = product_ids.split('|')
-            products = models.Product.objects.all().filter(id__in=product_id_in_cart)
-
-            # for total price shown in cart
-            for p in products:
-                total = total + p.price
-    # return render(request,'ecom/cart.html',{'products':products,'total':total,'product_count_in_cart':product_count_in_cart})
-    return render(request, 'ecom/v2/cart/cart.html',
-                  {'products': products, 'total': total, 'product_count_in_cart': product_count_in_cart})
+    return render(request, 'ecom/v2/cart/cart.html', get_cart(request))
 
 
-def remove_from_cart_view(request, pk):
-    # for counter in cart
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        counter = product_ids.split('|')
-        product_count_in_cart = len(set(counter))
-    else:
-        product_count_in_cart = 0
+# # any one can add product to cart, no need of signin
+# def add_to_cart_view(request, pk):
+#     products = models.Product.objects.all()
 
-    # removing product id from cookie
-    total = 0
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        product_id_in_cart = product_ids.split('|')
-        product_id_in_cart = list(set(product_id_in_cart))
-        product_id_in_cart.remove(str(pk))
-        products = models.Product.objects.all().filter(id__in=product_id_in_cart)
-        # for total price shown in cart after removing product
-        for p in products:
-            total = total + p.price
+#     # for cart counter, fetching products ids added by customer from cookies
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         counter = product_ids.split('|')
+#         product_count_in_cart = len(set(counter))
+#     else:
+#         product_count_in_cart = 1
 
-        #  for update coookie value after removing product id in cart
-        value = ""
-        for i in range(len(product_id_in_cart)):
-            if i == 0:
-                value = value + product_id_in_cart[0]
-            else:
-                value = value + "|" + product_id_in_cart[i]
-        # response = render(request, 'ecom/cart.html',{'products':products,'total':total,'product_count_in_cart':product_count_in_cart})
-        response = render(request, 'ecom/v2/cart/cart.html',
-                          {'products': products, 'total': total, 'product_count_in_cart': product_count_in_cart})
+#     # response = render(request, 'ecom/index.html',{'products':products,'product_count_in_cart':product_count_in_cart})
+#     response = render(request, 'ecom/v2/home/index.html',
+#                       {'products': products, 'product_count_in_cart': product_count_in_cart})
 
-        if value == "":
-            response.delete_cookie('product_ids')
-        response.set_cookie('product_ids', value)
-        return response
+#     # adding product id to cookies
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         if product_ids == "":
+#             product_ids = str(pk)
+#         else:
+#             product_ids = product_ids + "|" + str(pk)
+#         response.set_cookie('product_ids', product_ids)
+#     else:
+#         response.set_cookie('product_ids', pk)
+
+#     product = models.Product.objects.get(id=pk)
+#     # messages.info(request, product.name + ' added to cart successfully!')
+
+#     return response
+
+# # for checkout of cart
+# def cart_view(request):
+#     # for cart counter
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         counter = product_ids.split('|')
+#         product_count_in_cart = len(set(counter))
+#     else:
+#         product_count_in_cart = 0
+
+#     # fetching product details from db whose id is present in cookie
+#     products = None
+#     total = 0
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         if product_ids != "":
+#             product_id_in_cart = product_ids.split('|')
+#             products = models.Product.objects.all().filter(id__in=product_id_in_cart)
+
+#             # for total price shown in cart
+#             for p in products:
+#                 total = total + p.price
+#     # return render(request,'ecom/cart.html',{'products':products,'total':total,'product_count_in_cart':product_count_in_cart})
+#     return render(request, 'ecom/v2/cart/cart.html',
+#                   {'products': products, 'total': total, 'product_count_in_cart': product_count_in_cart})
+
+
+# def remove_from_cart_view(request, pk):
+#     # for counter in cart
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         counter = product_ids.split('|')
+#         product_count_in_cart = len(set(counter))
+#     else:
+#         product_count_in_cart = 0
+
+#     # removing product id from cookie
+#     total = 0
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         product_id_in_cart = product_ids.split('|')
+#         product_id_in_cart = list(set(product_id_in_cart))
+#         product_id_in_cart.remove(str(pk))
+#         products = models.Product.objects.all().filter(id__in=product_id_in_cart)
+#         # for total price shown in cart after removing product
+#         for p in products:
+#             total = total + p.price
+
+#         #  for update coookie value after removing product id in cart
+#         value = ""
+#         for i in range(len(product_id_in_cart)):
+#             if i == 0:
+#                 value = value + product_id_in_cart[0]
+#             else:
+#                 value = value + "|" + product_id_in_cart[i]
+#         # response = render(request, 'ecom/cart.html',{'products':products,'total':total,'product_count_in_cart':product_count_in_cart})
+#         response = render(request, 'ecom/v2/cart/cart.html',
+#                           {'products': products, 'total': total, 'product_count_in_cart': product_count_in_cart})
+
+#         if value == "":
+#             response.delete_cookie('product_ids')
+#         response.set_cookie('product_ids', value)
+#         return response
 
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
@@ -474,9 +549,7 @@ def payment_success_view(request):
     email = None
     mobile = None
     address = None
-    product_details = "<br><br>Order details:<ul>"
-    total = 0
-    address = ""
+
     # Retrieve products from cookies
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
@@ -484,13 +557,7 @@ def payment_success_view(request):
             product_id_in_cart = product_ids.split('|')
             products = models.Product.objects.filter(id__in=product_id_in_cart)
             for product in products:
-                product_details += f'<li>{product.name}: ${product.price}</li>'
-                total += product.price
                 print(product.name)  # Debugging statement, consider removing in production
-
-    product_details += "</ul>"
-    product_details += "<br><br>Total: $" + str(total)
-    product_details += "<br><br>"
 
     # Retrieve additional customer details from cookies
     email = request.COOKIES.get('email')
@@ -510,11 +577,6 @@ def payment_success_view(request):
         # Add products to the order
         order.products.set(products)
         order.save()
-        send_email(email,
-                   'Order Confirmation',
-                   f'Hi {customer.user.first_name},<br><br>Your order has been placed '
-                   f'successfully.<ul>{product_details}</ul><br>Regards,<br>EcoGreenSmart Team')
-
     except Exception as e:
         print(e)  # For debugging, consider logging in production
 
@@ -705,35 +767,18 @@ class HomeView(TemplateView):
 
 
 
-# def search(request):
-#     template = 'blog/home.html'
-
-#     query = request.GET.get('q')
-
-#     result = Post.objects.filter(
-#         Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
-#     )
-    
-#     context = {'posts': result}
-#     return render(request, template, context)
-
-
 def search(request):
     template = 'blog/home.html'
+
     query = request.GET.get('q')
 
-    if query:
-        result = Post.objects.filter(
-            Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
-        )
-    else:
-        result = Post.objects.none()  # Return an empty QuerySet if query is empty
-
-    context = {
-        'posts': result,
-        'query_string': query  # Pass the query string to the context for use in the template
-    }
+    result = Post.objects.filter(
+        Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
+    )
+    
+    context = {'posts': result}
     return render(request, template, context)
+
 
 def getfile(request):
     return serve(request, 'File')
@@ -805,7 +850,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    success_url = reverse_lazy('blog-home')
+    success_url = reverse_lazy('home')
     template_name = 'blog/post_confirm_delete.html'
 
     def test_func(self):

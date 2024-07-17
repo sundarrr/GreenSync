@@ -55,6 +55,19 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+class Cart(models.Model):
+    customer = models.ForeignKey('Customer', on_delete=models.CASCADE, null=True)
+    products = models.ManyToManyField(Product, through='CartProduct', blank=True)
+    email = models.CharField(max_length=50, null=True)
+    address = models.CharField(max_length=500, null=True)
+    mobile = models.CharField(max_length=20, null=True)
+    order_date = models.DateField(auto_now_add=True, null=True)
+
+class CartProduct(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
 class Orders(models.Model):
     STATUS = (
         ('Pending', 'Pending'),

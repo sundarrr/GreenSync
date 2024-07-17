@@ -51,6 +51,8 @@ from .views import (
     terms_and_condition,
     privacy_policy,
     logout_view,
+    increase_quantity,
+    decrease_quantity
 )
 
 urlpatterns = [
@@ -93,9 +95,13 @@ urlpatterns = [
     path('edit-profile', edit_profile_view, name='edit-profile'),
     path('download-invoice/<int:orderID>', download_invoice_view, name='download-invoice'),
 
-    path('add-to-cart/<int:pk>', add_to_cart_view, name='add-to-cart'),
+    path('add-to-cart/<int:product_id>', add_to_cart_view, name='add-to-cart'),
     path('cart', cart_view, name='cart'),
-    path('remove-from-cart/<int:pk>', remove_from_cart_view, name='remove-from-cart'),
+    path('remove-from-cart/<int:product_id>', remove_from_cart_view, name='remove-from-cart'),
+    path('increase-quantity/<int:product_id>', increase_quantity, name='increase-quantity'),
+    path('decrease-quantity/<int:product_id>', decrease_quantity, name='decrease-quantity'),
+
+    
     path('customer-address', customer_address_view, name='customer-address'),
     path('payment-success', payment_success_view, name='payment-success'),
 
