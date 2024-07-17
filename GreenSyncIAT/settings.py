@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-+$i1&wst0u^(77^vw9x*&fkc+pk*c+%w!fb1@hr)3k(=sr+!^o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["ecogreenmart.in","www.ecogreenmart.in"]
+ALLOWED_HOSTS = ["ecogreenmart.in","www.ecogreenmart.in", "127.0.0.1", "localhost"]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://ecogreenmart.in',
@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "adminPortal.apps.AdminportalConfig",
-    "userPortal.apps.UserportalConfig",
+    'adminPortal.apps.AdminportalConfig',
+    'userPortal.apps.UserportalConfig',
     'widget_tweaks',
     'crispy_forms',
     'ckeditor',
@@ -62,7 +62,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'userPortal.middleware.SessionTimeoutMiddleware',
 ]
+
+
+SESSION_COOKIE_AGE = 600
+SESSION_SAVE_EVERY_REQUEST = True
+
 
 ROOT_URLCONF = 'GreenSyncIAT.urls'
 

@@ -1,5 +1,5 @@
 from django.conf.urls.static import static
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.urls import path
 
 from GreenSyncIAT import settings
