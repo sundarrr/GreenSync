@@ -22,52 +22,35 @@
         }
     </style>
 
-    {% for post in posts %}
-        <div class="jumbotron mt-2 bg-white shadow-lg">
-            <article class="media content-section shadow">
-                <a href="{{ post.author.profile_pic }}" target="_blank">
-                    <img src="{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
-                </a>
-                <div class="media-body">
-                    <div class="article-metadata d-flex justify-content-between">
-                        <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}"><h3>{{ post.author }}</h3></a>
-                        <small class="text-muted">{{ post.date_upload|date:"F d, Y" }}</small>
-                    </div>
-                    {% if post.file %}
-                        <a href="{{ post.file.url }}" download class="text-dark text-justify"><h5>{{ post.blog }}</h5></a>
-                    {% endif %}
-                    <h2><a class="article-title text-justify" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-                    <div class="d-flex justify-content-between">
-                        <p class="article-content text-justify text-truncate overflow-hidden">{{ post.content }}</p>
-                        {% if post.file %}
-                            <div class="form-group mt-0 pt-0 m-2">
-                                <a class="btn btn-outline-primary btn-d" href="{{ post.file.url }}" download type="submit"><i class="fas fa-download"></i></a>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </article>
-            
-            <div class="comments-section">
-                <h2 class="comment-heading">Comments on this post</h2>
-                <form method="POST" class="comment-form">
-                    {% csrf_token %}
-                    {{ comment_form.as_p }}
-                </form>
-                {% for comment in comments %}
-                    {% if comment.post.id == post.id %}
-                        <div class="comment small-font {% if not forloop.first %}hidden{% endif %}">
-                            <strong>{{ comment.author }}</strong>
-                            <p>{{ comment.content }}</p>
+   
+
+    {% if posts %}
+    <p>Posts containing '{{ query_string }}'</p>
+        {% for post in posts %}
+            <div class="jumbotron mt-2 bg-white shadow-lg">
+                <article class="media content-section shadow">
+                    <a href="{{ post.author.profile_pic }}" target="_blank">
+                        <img src="{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
+                    </a>
+                    <div class="media-body">
+                        <div class="article-metadata d-flex justify-content-between">
+                            <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}"><h3>{{ post.author }}</h3></a>
+                            <small class="text-muted">{{ post.date_upload|date:"F d, Y" }}</small>
                         </div>
-                    {% endif %}
-                {% endfor %}
-                {% if comments|length > 1 %}
-                    <button class="btn btn-outline-info mt-2" onclick="toggleComments(this)">Expand</button>
-                {% endif %}
+                        {% if post.file %}
+                            <a href="{{ post.file.url }}" download class="text-dark text-justify"><h5>{{ post.blog }}</h5></a>
+                        {% endif %}
+                        <h2><a class="article-title text-justify" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+                        <div class="d-flex justify-content-between">
+                            <p class="article-content text-justify text-truncate overflow-hidden">{{ post.content }}</p>
+                        </div>
+                    </div>
+                </article>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    {% else %}
+        <p>No posts found matching '{{ query_string }}'.</p>
+    {% endif %}
 
     {% if is_paginated %}
         {% if page_obj.has_previous %}

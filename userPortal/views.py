@@ -27,6 +27,9 @@ from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Post
 
 
 from django.http.response import (
@@ -694,18 +697,35 @@ class HomeView(TemplateView):
 
 
 
+# def search(request):
+#     template = 'blog/home.html'
+
+#     query = request.GET.get('q')
+
+#     result = Post.objects.filter(
+#         Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
+#     )
+    
+#     context = {'posts': result}
+#     return render(request, template, context)
+
+
 def search(request):
     template = 'blog/home.html'
-
     query = request.GET.get('q')
 
-    result = Post.objects.filter(
-        Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
-    )
-    
-    context = {'posts': result}
-    return render(request, template, context)
+    if query:
+        result = Post.objects.filter(
+            Q(title__icontains=query) | Q(author__user__username__icontains=query) | Q(content__icontains=query)
+        )
+    else:
+        result = Post.objects.none()  # Return an empty QuerySet if query is empty
 
+    context = {
+        'posts': result,
+        'query_string': query  # Pass the query string to the context for use in the template
+    }
+    return render(request, template, context)
 
 def getfile(request):
     return serve(request, 'File')
@@ -777,7 +797,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('blog-home')
     template_name = 'blog/post_confirm_delete.html'
 
     def test_func(self):

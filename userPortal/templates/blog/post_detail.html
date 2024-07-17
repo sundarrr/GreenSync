@@ -30,7 +30,7 @@
             {% endif %}
             {% if request.user == post.author.user %}
             <a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
-           <!-- <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>-->
+            <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>
             {% endif %}
         </div>
     </article>
@@ -54,9 +54,9 @@
                         {{ reply_form.as_p }}
                         <input type="hidden" name="parent_id" value="{{ comment.id }}">
                         <button type="submit" name="reply_form" class="btn btn-primary">Reply</button>
-                    </form>
+                    </form> 
                 </div>
-                {% for reply in comment.replies.all %}
+               {% for reply in comment.replies.all %}
                 <div class="media mt-3">
                   <img class="rounded-circle article-img" src="{{ reply.author.profile_pic }}" style="width: 40px; height: 40px;">
 
@@ -67,7 +67,7 @@
                         </div>
                         <p class="article-content">{{ reply.content }}</p>
                     </div>
-                </div>
+                </div> 
                 {% endfor %}
             </div>
         </div>
