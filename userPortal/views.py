@@ -58,8 +58,11 @@ def home_view(request):
 
     print(f"user {request.user.is_authenticated}")
     if request.user.is_authenticated:
-        cart = get_cart(request)
-        product_count_in_cart = cart['product_count_in_cart']
+        try:
+            cart = get_cart(request)
+            product_count_in_cart = cart['product_count_in_cart']
+        except Exception as e:
+            product_count_in_cart = 0
     else:
         product_count_in_cart = 0
 
@@ -312,8 +315,12 @@ def search_view(request):
     categories = models.Category.objects.all()
     print(f"user {request.user.is_authenticated}")
     if request.user.is_authenticated:
-        cart = get_cart(request)
-        product_count_in_cart = cart['product_count_in_cart']
+        
+        try:
+            cart = get_cart(request)
+            product_count_in_cart = cart['product_count_in_cart']
+        except Exception as e:
+            product_count_in_cart = 0
     else:
         product_count_in_cart = 0
     word = ""
@@ -552,8 +559,11 @@ def cart_view(request):
 def customer_home_view(request):
     products = models.Product.objects.all()
     categories = models.Category.objects.all()
-    cart = get_cart(request)
-    product_count_in_cart = cart['product_count_in_cart']
+    try:
+        cart = get_cart(request)
+        product_count_in_cart = cart['product_count_in_cart']
+    except Exception as e:
+        product_count_in_cart = 0
     return render(request, 'ecom/v2/home/customer_home.html',
                   {'products': products, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
