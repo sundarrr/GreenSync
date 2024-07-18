@@ -130,7 +130,7 @@ def event_view(request):
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
-
+@login_required(login_url='adminlogin')
 def adminclick_view(request):
     return HttpResponseRedirect('admin-dashboard')
 
@@ -193,7 +193,7 @@ def admin_dashboard_view(request):
     ordercount = Orders.objects.all().count()
 
     # for recent order tables
-    orders = Orders.objects.all()
+    orders = models.Orders.objects.all().order_by('-id')
     ordered_products = []
     ordered_bys = []
     for order in orders:
@@ -368,7 +368,7 @@ def search_view(request):
 #                   {'products': products, 'categories': categories, 'word': word,
 #                    'product_count_in_cart': product_count_in_cart})
 
-
+@login_required(login_url='customerlogin')
 def add_to_cart_view(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     thisCustomer = models.Customer.objects.get(user_id=request.user.id)
@@ -439,22 +439,28 @@ def decrease_quantity(request, product_id):
 
 def get_cart(request):
     thisCustomer = models.Customer.objects.get(user_id=request.user.id)
-    # Assuming the user's cart is identified by their session or user object
-    cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
+    cart = get_object_or_404(Cart, customer=thisCustomer)
 
-    # Get all CartProduct instances related to this cart
     cart_products = CartProduct.objects.filter(cart=cart)
 
-    # Calculate total (optional)
+    # Calculate total and product count
     total = sum(cp.product.price * cp.quantity for cp in cart_products)
-    product_count_in_cart = sum(cp.quantity for cp in cart_products)
+    product_count_in_cart = len(cart_products)
 
-    # Pass cart details to the template
+    # Check stock availability and collect out-of-stock products
+    out_of_stock_products = []
+    for cp in cart_products:
+        if cp.quantity > cp.product.stock:
+            out_of_stock_products.append(cp.product)
+
+    # Pass cart details and out-of-stock products to the template
     context = {
         'products': cart_products,
         'total': total,
-        'product_count_in_cart': product_count_in_cart
+        'product_count_in_cart': product_count_in_cart,
+        'out_of_stock_products': out_of_stock_products
     }
+
     return context
 
 
@@ -668,12 +674,13 @@ def customer_address_view(request):
 def payment_success_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
     cart_model_instance = get_cart(request)
-    products = cart_model_instance['products']
+    cart_products = cart_model_instance['products']
     email = request.COOKIES.get('email')
     mobile = request.COOKIES.get('mobile')
     address = request.COOKIES.get('address')
 
     try:
+        # Create the order
         order = models.Orders.objects.create(
             customer=customer,
             email=email,
@@ -681,9 +688,16 @@ def payment_success_view(request):
             address=address,
             status='Pending'
         )
-        order.products.set([cp.product for cp in products])
+        order.products.set([cp.product for cp in cart_products])
         order.save()
-        # Delete the cart for the customer
+
+        # Update stock for each product in the cart
+        for cp in cart_products:
+            product = cp.product
+            product.stock -= cp.quantity
+            product.save()
+
+        # Delete the cart products for the customer
         cart_model_instance.cartproduct_set.all().delete()
 
         # Delete the cart for the customer
@@ -696,6 +710,7 @@ def payment_success_view(request):
     response.delete_cookie('mobile')
     response.delete_cookie('address')
     return response
+
 
 
 # @login_required(login_url='customerlogin')
@@ -757,13 +772,10 @@ def payment_success_view(request):
 #     return render(request, 'ecom/v2/cart/my_order.html', {'data': zip(ordered_products, orders)})
 def my_order_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
-    order = models.Orders.objects.filter(customer_id=customer).order_by('-id').first()
-    products = []
-    if order:
-        products = order.products.all()
+    orders = models.Orders.objects.filter(customer_id=customer).order_by('-id')
 
     return render(request, 'ecom/v2/cart/my_order.html',
-                  {'order': order, 'products': products})
+                  {'orders': orders})
 
 
 def render_to_pdf(template_src, context_dict):
