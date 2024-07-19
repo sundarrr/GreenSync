@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from . import models
-from .models import Product, Category, Comment
+from .models import Product, Category, Comment, Customer
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
 
 class CustomerUserForm(forms.ModelForm):
@@ -15,13 +16,23 @@ class CustomerUserForm(forms.ModelForm):
 
 
 class CustomerForm(forms.ModelForm):
+    security_question = forms.ChoiceField(choices=Customer.SECURITY_QUESTION_CHOICES)
+    security_answer = forms.CharField(max_length=255, widget=forms.TextInput())
     class Meta:
         model = models.Customer
-        fields = ['address', 'email','mobile', 'profile_pic']
+        fields = ['address', 'email','mobile', 'profile_pic', 'security_question', 'security_answer', ]
         widgets = {
             'email': forms.EmailInput()
         }
 
+class UsernameForm(forms.Form):
+    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
+class SecurityQuestionForm(forms.Form):
+    security_answer = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Answer'}))
+
+class SetNewPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'New Password'}))
+    new_password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm New Password'}))
 
 class ProductForm(forms.ModelForm):
     class Meta:
