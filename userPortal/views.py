@@ -135,6 +135,23 @@ def event_view(request):
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
+def get_event_details(request, event_id):
+    try:
+        event = Event.objects.get(pk=event_id)
+        coords = event.location if isinstance(event.location, (list, tuple)) else event.location.coords
+        data = {
+            'name': event.name,
+            'description': event.description,
+            'venue': event.venue,
+            'location': coords,
+            'end_date': event.end_date.strftime('%Y-%m-%d'),
+            'max_attendees': event.maximum_attende,
+            'image': event.category.image.url if event.category and event.category.image else ''
+        }
+        return JsonResponse(data)
+    except Event.DoesNotExist:
+        return JsonResponse({'error': 'Event not found'})
+
 @login_required(login_url='adminlogin')
 def adminclick_view(request):
     return HttpResponseRedirect('admin-dashboard')

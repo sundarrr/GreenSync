@@ -51,7 +51,7 @@ from .views import (
     privacy_policy,
     logout_view,
     increase_quantity,
-    decrease_quantity
+    decrease_quantity, get_event_details
 )
 
 urlpatterns = [
@@ -65,6 +65,7 @@ urlpatterns = [
     path('register_event/<int:event_id>/', register_event, name='register_event'),
     path('cancel_registration/<int:event_id>/', cancel_registration, name='cancel_registration'),
     path('events/', event_view, name='events'),
+    path('get_event_details/<int:event_id>/', get_event_details, name='get_event_details'),
 
     path('adminclick', adminclick_view),
     path('admin-portal/', admin_portal_view, name='admin-portal'),
