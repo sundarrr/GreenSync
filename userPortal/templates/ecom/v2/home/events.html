@@ -30,7 +30,8 @@
                     </div>
                     <ul>
                         {% for category in categories %}
-                            <li><a href="#">{{ category.name }}</a></li>
+<li><a href="/search?category={{ category.name }}">{{ category.name }}</a></li>
+
                         {% endfor %}
                     </ul>
                 </div>

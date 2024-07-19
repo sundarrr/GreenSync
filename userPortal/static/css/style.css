@@ -1700,6 +1700,9 @@ ol {
 .product__details__pic__slider.owl-carousel .owl-item img {
 	width: auto;
 }
+.owl-item{
+	padding: 6px !important;
+}
 
 .product__details__text h3 {
 	color: #252525;
