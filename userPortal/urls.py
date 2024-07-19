@@ -1,5 +1,5 @@
 from django.conf.urls.static import static
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.urls import path
 
 from GreenSyncIAT import settings
@@ -47,7 +47,6 @@ from .views import (
     cancel_registration,
     about_us,
     details,
-    contact_us,
     terms_and_condition,
     privacy_policy,
     logout_view,
@@ -83,7 +82,6 @@ urlpatterns = [
 
     path('about_us', about_us, name='about_us'),
     path('details', details, name='details'),
-    path('contact_us', contact_us, name='contact_us'),
     path('terms_and_condition', terms_and_condition, name='terms_and_condition'),
     path('privacy_policy', privacy_policy, name='privacy_policy'),
 

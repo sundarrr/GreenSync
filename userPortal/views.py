@@ -1,6 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
+from datetime import timezone
+
+from django.contrib.auth import authenticate, login, user_logged_in
 from django.db.models import Count
+from django.dispatch import receiver
 from django.shortcuts import render, redirect, reverse
+from django.views.static import serve
+
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -72,7 +78,7 @@ def home_view(request):
                   {'products': products, 'product_count_in_cart': product_count_in_cart})
 
 
-@login_required
+@login_required(login_url='customerlogin')
 def register_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
@@ -84,6 +90,10 @@ def register_event(request, event_id):
     registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
     if created:
         messages.success(request, f"You have successfully registered for {event.name} event.")
+        send_email(user.email,
+                   'Event Registration Successful',
+                   f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
+
     else:
         messages.info(request, f"You are already registered for {event.name} event.")
     return redirect('events')
@@ -120,7 +130,7 @@ def event_view(request):
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
-
+@login_required(login_url='adminlogin')
 def adminclick_view(request):
     return HttpResponseRedirect('admin-dashboard')
 
@@ -183,7 +193,7 @@ def admin_dashboard_view(request):
     ordercount = Orders.objects.all().count()
 
     # for recent order tables
-    orders = Orders.objects.all()
+    orders = models.Orders.objects.all().order_by('-id')
     ordered_products = []
     ordered_bys = []
     for order in orders:
@@ -270,11 +280,6 @@ def about_us(request):
 def details(request):
     return render(request, 'ecom/v2/base/details.html')
 
-
-def contact_us(request):
-    return render(request, 'ecom/v2/base/contact_us.html')
-
-
 def terms_and_condition(request):
     return render(request, 'ecom/v2/base/terms.html')
 
@@ -314,7 +319,7 @@ def search_view(request):
     categories = models.Category.objects.all()
     print(f"user {request.user.is_authenticated}")
     if request.user.is_authenticated:
-        
+
         try:
             cart = get_cart(request)
             product_count_in_cart = cart['product_count_in_cart']
@@ -363,7 +368,7 @@ def search_view(request):
 #                   {'products': products, 'categories': categories, 'word': word,
 #                    'product_count_in_cart': product_count_in_cart})
 
-
+@login_required(login_url='customerlogin')
 def add_to_cart_view(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     thisCustomer = models.Customer.objects.get(user_id=request.user.id)
@@ -434,22 +439,28 @@ def decrease_quantity(request, product_id):
 
 def get_cart(request):
     thisCustomer = models.Customer.objects.get(user_id=request.user.id)
-    # Assuming the user's cart is identified by their session or user object
-    cart = get_object_or_404(Cart, customer=thisCustomer)  # Adjust based on your user handling
+    cart = get_object_or_404(Cart, customer=thisCustomer)
 
-    # Get all CartProduct instances related to this cart
     cart_products = CartProduct.objects.filter(cart=cart)
 
-    # Calculate total (optional)
+    # Calculate total and product count
     total = sum(cp.product.price * cp.quantity for cp in cart_products)
-    product_count_in_cart = sum(cp.quantity for cp in cart_products)
+    product_count_in_cart = len(cart_products)
 
-    # Pass cart details to the template
+    # Check stock availability and collect out-of-stock products
+    out_of_stock_products = []
+    for cp in cart_products:
+        if cp.quantity > cp.product.stock:
+            out_of_stock_products.append(cp.product)
+
+    # Pass cart details and out-of-stock products to the template
     context = {
         'products': cart_products,
         'total': total,
-        'product_count_in_cart': product_count_in_cart
+        'product_count_in_cart': product_count_in_cart,
+        'out_of_stock_products': out_of_stock_products
     }
+
     return context
 
 
@@ -563,6 +574,7 @@ def customer_home_view(request):
         product_count_in_cart = cart['product_count_in_cart']
     except Exception as e:
         product_count_in_cart = 0
+    # return render(request,'ecom/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
     return render(request, 'ecom/v2/home/customer_home.html',
                   {'products': products, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
@@ -662,12 +674,13 @@ def customer_address_view(request):
 def payment_success_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
     cart_model_instance = get_cart(request)
-    products = cart_model_instance['products']
+    cart_products = cart_model_instance['products']
     email = request.COOKIES.get('email')
     mobile = request.COOKIES.get('mobile')
     address = request.COOKIES.get('address')
 
     try:
+        # Create the order
         order = models.Orders.objects.create(
             customer=customer,
             email=email,
@@ -675,9 +688,16 @@ def payment_success_view(request):
             address=address,
             status='Pending'
         )
-        order.products.set([cp.product for cp in products])
+        order.products.set([cp.product for cp in cart_products])
         order.save()
-        # Delete the cart for the customer
+
+        # Update stock for each product in the cart
+        for cp in cart_products:
+            product = cp.product
+            product.stock -= cp.quantity
+            product.save()
+
+        # Delete the cart products for the customer
         cart_model_instance.cartproduct_set.all().delete()
 
         # Delete the cart for the customer
@@ -690,6 +710,7 @@ def payment_success_view(request):
     response.delete_cookie('mobile')
     response.delete_cookie('address')
     return response
+
 
 
 # @login_required(login_url='customerlogin')
@@ -751,13 +772,10 @@ def payment_success_view(request):
 #     return render(request, 'ecom/v2/cart/my_order.html', {'data': zip(ordered_products, orders)})
 def my_order_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
-    order = models.Orders.objects.filter(customer_id=customer).order_by('-id').first()
-    products = []
-    if order:
-        products = order.products.all()
+    orders = models.Orders.objects.filter(customer_id=customer).order_by('-id')
 
     return render(request, 'ecom/v2/cart/my_order.html',
-                  {'order': order, 'products': products})
+                  {'orders': orders})
 
 
 def render_to_pdf(template_src, context_dict):

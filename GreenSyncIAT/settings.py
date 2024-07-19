@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-+$i1&wst0u^(77^vw9x*&fkc+pk*c+%w!fb1@hr)3k(=sr+!^o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["ecogreenmart.in","www.ecogreenmart.in"]
+ALLOWED_HOSTS = ["127.0.0.1","ecogreenmart.in","www.ecogreenmart.in"]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://ecogreenmart.in',
@@ -62,7 +62,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'userPortal.middleware.SessionTimeoutMiddleware',
 ]
+
+
+SESSION_COOKIE_AGE = 600
+SESSION_SAVE_EVERY_REQUEST = True
+
 
 ROOT_URLCONF = 'GreenSyncIAT.urls'
 
@@ -134,7 +140,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MAPBOX_KEY = 'your_mapbox_access_token'
+MAPBOX_KEY = 'pk.eyJ1IjoicmFrdWwyMCIsImEiOiJjbHlxZXc2cDEwOWtyMmxwdDgwaDRwdHdqIn0.6DBSL1JDtxEZQidFiCKdhg'
 
 CKEDITOR_CONFIGS = {
     'default': {

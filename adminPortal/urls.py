@@ -19,8 +19,6 @@ from .views import (
     RemoveEventUserWishDeleteView,
     UpdateEventStatusView,
     CompleteEventList,
-    # AbsenseUserList,
-    # CompleteEventUserList,
     CreateUserMark,
     UserMarkList,
     search_event_category,

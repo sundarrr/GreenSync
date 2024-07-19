@@ -8,7 +8,16 @@
     {% load static %}
     {% include 'ecom/v2/base/load_css.html' %}
 </head>
-
+<script>
+        function checkStockAndPurchase() {
+            const outOfStockProducts = {{ out_of_stock_products|length }};
+            if (outOfStockProducts > 0) {
+                alert('Few products in your cart are out of stock. Please remove the items or try reducing the quantity !');
+            } else {
+                window.location.href = '/customer-address';
+            }
+        }
+    </script>
 <body>
 {% include 'ecom/v2/base/header_after_login.html' %}
 
@@ -27,11 +36,9 @@
                 <th>Price</th>
                 <th>Description</th>
                 <th>Quantity</th>
-
+                <th>Availability</th>
             </tr>
             </thead>
-            <h2>Your Cart</h2>
-
             {% for p in products %}
             {% if p %}
         
@@ -52,7 +59,17 @@
                             <i class="fa fa-plus"></i>
                         </a>
                     </td>
-        
+                        {% if p.product in out_of_stock_products %}
+                            <td>
+                            <p style="color: red;">Out of Stock</p>
+                            </td>
+                            {% else %}
+                            <td>
+                            <p style="color: green;">In Stock</p>
+                            </td>
+                        {% endif %}
+
+
                     <td><a class="btn btn-danger btn-xs" href="{% url 'remove-from-cart' p.product.id %}"> <i
                             class="fa fa-trash"></i></a>
                     </td>
@@ -66,12 +83,11 @@
         </table>
     </div>
 </div>
-<div style="text-align: center;">
-    <!-- Total button -->
-<button class="btn btn-success">Total {{ total }}</button>
-
-<!-- Purchase link styled as a button -->
-<a href="/customer-address" class="btn btn-success">Purchase</a>
+<div style="display: flex; justify-content: center; align-items: center; text-align: center;">
+    <!-- Total amount -->
+    <p style="margin-right: 20px; margin-top: 15px">Total ${{ total }}</p>
+    <!-- Purchase link styled as a button -->
+    <button class="btn btn-success" onclick="checkStockAndPurchase()">Purchase</button>
 </div>
 
 <br><br><br>
