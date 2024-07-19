@@ -32,6 +32,7 @@
             {% if post.file %}
                 <a href="{{ post.file.url }}" download>Download</a>
             {% endif %}
+            <br><br>
             {% if request.user == post.author.user %}
                 <a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
                 <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>
@@ -85,6 +86,7 @@
             </div>
         {% endfor %}
     </section>
+    <hr>
 
     {% if request.user.is_authenticated %}
         <section class="comment-section">
