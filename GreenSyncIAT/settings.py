@@ -133,14 +133,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MAPBOX_KEY = 'pk.eyJ1IjoicmFrdWwyMCIsImEiOiJjbHlxZXc2cDEwOWtyMmxwdDgwaDRwdHdqIn0.6DBSL1JDtxEZQidFiCKdhg'
+
+CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'
 
 CKEDITOR_CONFIGS = {
     'default': {
@@ -151,8 +151,6 @@ CKEDITOR_CONFIGS = {
 }
 
 BASE_DIR1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# settings.py
 
 # URL to redirect to for login
 LOGIN_URL = "/accounts/login/"
