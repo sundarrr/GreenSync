@@ -29,8 +29,8 @@
         {% for post in posts %}
             <div class="jumbotron mt-2 bg-white shadow-lg">
                 <article class="media content-section shadow">
-                    <a href="{{ post.author.profile_pic }}" target="_blank">
-                        <img src="{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
+                    <a href="/media/{{post.author.profile_pic }}" target="_blank">
+                        <img src="/media/{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
                     </a>
                     <div class="media-body">
                         <div class="article-metadata d-flex justify-content-between">

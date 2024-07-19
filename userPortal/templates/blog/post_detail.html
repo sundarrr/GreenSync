@@ -17,7 +17,7 @@
     </style>
 
     <article class="media content-section">
-        <img class="rounded-circle article-img" src="{{ post.author.profile_pic }}">
+        <img class="rounded-circle article-img" src="/media/{{ post.author.profile_pic }}">
         <div class="media-body">
             <div class="article-metadata">
                 {% if post.author.user.username %}
@@ -44,7 +44,7 @@
         <h2>Comments</h2>
         {% for comment in comments %}
             <div class="media mb-3">
-                <img class="rounded-circle article-img" src="{{ comment.author.profile_pic }}" style="width: 40px; height: 40px;">
+                <img class="rounded-circle article-img" src="/media/{{ comment.author.profile_pic }}" style="width: 40px; height: 40px;">
                 <div class="media-body">
                     <div class="article-metadata">
                         {% if comment.author.user.username %}
