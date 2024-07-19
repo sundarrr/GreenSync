@@ -75,9 +75,17 @@
                 </nav>
             </div>
             <div class="col-lg-3">
+                <div class="col-lg-3">
                 <div class="header__cart">
-                    <ul>
-                        <li><a href="/cart"><i class="fa fa-shopping-bag"></i> <span>{{ product_count_in_cart }}</span></a></li>
+                    <ul style="display:flex;align-items: center;">
+                        <li style="margin-right: 40px"><a href="/cart"><i class="fa fa-shopping-bag"></i> <span>{{ product_count_in_cart }}</span></a>
+
+                        <li  style="display:flex; align-items: self-end;">
+                            <img src="{{ customer_url }}" alt="profile pic"
+                                 class="rounded-circle article-img" style="width: 48px; height: 48px;margin-right: 8px"/>
+                            <p style="font-weight:bold">{{ request.user }} </p>
+                        </li>
+                        </li>
                     </ul>
                 </div>
             </div>

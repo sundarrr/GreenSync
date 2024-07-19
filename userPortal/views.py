@@ -335,9 +335,14 @@ def search_view(request):
     word = ""
 
     if request.user.is_authenticated:
+        try:
+            customer = models.Customer.objects.get(user_id=request.user.id)
+            customer_url = customer.profile_pic.url
+        except Exception as e:
+            customer_url = 'profile_pic/default.png'
         return render(request, 'ecom/v2/home/customer_home.html',
                       {'products': products, 'word': word, 'product_count_in_cart': product_count_in_cart,
-                       'categories': categories})
+                       'categories': categories,'customer_url':customer_url})
 
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
@@ -579,9 +584,15 @@ def customer_home_view(request):
         product_count_in_cart = cart['product_count_in_cart']
     except Exception as e:
         product_count_in_cart = 0
+
+    try:
+        customer = models.Customer.objects.get(user_id=request.user.id)
+        customer_url = customer.profile_pic.url
+    except Exception as e:
+        customer_url = 'profile_pic/default.png'
     # return render(request,'ecom/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
     return render(request, 'ecom/v2/home/customer_home.html',
-                  {'products': products, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
+                  {'products': products,'customer_url':customer_url, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
 
 # @login_required(login_url='customerlogin')
@@ -848,8 +859,8 @@ def download_invoice_view(request, orderID):
 @user_passes_test(is_customer)
 def my_profile_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
-    return render(request, 'ecom/v2/profile/my_profile.html', {'customer': customer})
-
+    customer_url = customer.profile_pic.url
+    return render(request, 'ecom/v2/profile/my_profile.html', {'customer': customer, 'customer_url':customer_url})
 
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
@@ -875,11 +886,16 @@ def dashboard(request):
     categories = models.Category.objects.all()
     top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]
     top_threads = Post.objects.order_by('-date_posted')[:3]
-
+    try:
+        customer = models.Customer.objects.get(user_id=request.user.id)
+        customer_url = customer.profile_pic.url
+    except Exception as e:
+        customer_url = 'profile_pic/default.png'
     context = {
         'categories': categories,
         'top_events': top_events,
         'top_threads': top_threads,
+        'customer_url':customer_url
     }
     return render(request, 'ecom/v2/home/user-dashboard.html', context)
 
