@@ -30,7 +30,8 @@
                     <ul>
 
         {% for category in categories %}
-            <li><a href="#">{{ category.name }}</a></li>
+<li><a href="/search?category={{ category.name }}">{{ category.name }}</a></li>
+
         {% endfor %}
 {#                        <li><a href="#">Fresh Meat</a></li>#}
 {#                        <li><a href="#">Vegetables</a></li>#}

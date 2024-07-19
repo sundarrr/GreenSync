@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
+from mapbox_location_field.models import LocationField
+
+
 # from mapbox_location_field.models import LocationField
 # from ckeditor_uploader.fields import RichTextUploadingField
 
@@ -32,7 +35,7 @@ class Event(models.Model):
     venue = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField()
-    location = models.CharField(max_length=255)
+    location = LocationField()
     maximum_attende = models.PositiveIntegerField()
     created_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='event_created_user')
     updated_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='event_updated_user')

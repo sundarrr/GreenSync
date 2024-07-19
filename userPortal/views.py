@@ -74,8 +74,10 @@ def home_view(request):
 
     if request.user.is_authenticated:
         return HttpResponseRedirect('customer-home')
-    return render(request, 'ecom/v2/home/index.html',
-                  {'products': products, 'product_count_in_cart': product_count_in_cart})
+    else:
+        return HttpResponseRedirect('dashboard')
+    # return render(request, 'ecom/v2/home/index.html',
+    #               {'products': products, 'product_count_in_cart': product_count_in_cart})
 
 
 @login_required(login_url='customerlogin')
