@@ -65,9 +65,9 @@ class EventCategoryListView(LoginRequiredMixin, ListView):
 class EventCategoryCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = EventCategory
-    # fields = ['name', 'code', 'image', 'priority', 'status']
     fields = ['name', 'code', 'image']
     template_name = 'events/create_event_category.html'
+    success_url = reverse_lazy('event-category-list')
 
     def form_valid(self, form):
         form.instance.created_user = self.request.user
@@ -81,6 +81,7 @@ class EventCategoryUpdateView(LoginRequiredMixin, UpdateView):
     # fields = ['name', 'code', 'image', 'priority', 'status']
     fields = ['name', 'code', 'image']
     template_name = 'events/edit_event_category.html'
+    success_url = reverse_lazy('event-category-list')
 
 
 class EventCategoryDeleteView(LoginRequiredMixin, DeleteView):

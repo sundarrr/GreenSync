@@ -140,7 +140,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MAPBOX_KEY = 'your_mapbox_access_token'
+MAPBOX_KEY = 'pk.eyJ1IjoicmFrdWwyMCIsImEiOiJjbHlxZXc2cDEwOWtyMmxwdDgwaDRwdHdqIn0.6DBSL1JDtxEZQidFiCKdhg'
 
 CKEDITOR_CONFIGS = {
     'default': {
