@@ -119,7 +119,7 @@ def cancel_registration(request, event_id):
     return redirect('events')
 
 
-@login_required
+@login_required(login_url='customerlogin')
 def event_view(request):
     events = Event.objects.all()
     categories = EventCategory.objects.all()
