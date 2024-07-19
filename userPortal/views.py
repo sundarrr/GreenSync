@@ -60,25 +60,28 @@ from django.views.generic import (
 #     return render(request, 'ecom/v2/home/index.html', {'products': products, 'product_count_in_cart': product_count_in_cart})
 
 def home_view(request):
-    products = Product.objects.all()
+    try:
+        products = Product.objects.all()
 
-    print(f"user {request.user.is_authenticated}")
-    if request.user.is_authenticated:
-        try:
-            cart = get_cart(request)
-            product_count_in_cart = cart['product_count_in_cart']
-        except Exception as e:
+        print(f"user {request.user.is_authenticated}")
+        if request.user.is_authenticated:
+            try:
+                cart = get_cart(request)
+                product_count_in_cart = cart['product_count_in_cart']
+            except Exception as e:
+                product_count_in_cart = 0
+        else:
             product_count_in_cart = 0
-    else:
-        product_count_in_cart = 0
 
-    if request.user.is_authenticated:
-        return HttpResponseRedirect('customer-home')
-    else:
+        if request.user.is_authenticated:
+            return HttpResponseRedirect('customer-home')
+        else:
+            return HttpResponseRedirect('dashboard')
+        # return render(request, 'ecom/v2/home/index.html',
+        #               {'products': products, 'product_count_in_cart': product_count_in_cart})
+    except Exception as e:
+        print(e)
         return HttpResponseRedirect('dashboard')
-    # return render(request, 'ecom/v2/home/index.html',
-    #               {'products': products, 'product_count_in_cart': product_count_in_cart})
-
 
 @login_required(login_url='customerlogin')
 def register_event(request, event_id):
@@ -116,7 +119,7 @@ def cancel_registration(request, event_id):
     return redirect('events')
 
 
-@login_required
+@login_required(login_url='customerlogin')
 def event_view(request):
     events = Event.objects.all()
     categories = EventCategory.objects.all()
