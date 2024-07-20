@@ -33,6 +33,11 @@ from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .forms import SetNewPasswordForm
 
 from django.http.response import (
     JsonResponse
@@ -122,7 +127,8 @@ def cancel_registration(request, event_id):
 def event_view(request):
     query = request.GET.get('query', '')
     category = request.GET.get('category', '')
-
+    customer = models.Customer.objects.get(user_id=request.user.id)
+    customer_url = customer.profile_pic.url
     events = Event.objects.all()
     if query:
         events = events.filter(name__icontains=query)
@@ -134,6 +140,7 @@ def event_view(request):
     context = {
         'events': events,
         'categories': categories,
+        'customer_url': customer_url,
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
@@ -232,11 +239,6 @@ def security_question(request):
                   {'form': form, 'security_question': customer.get_security_question_display()})
 
 
-from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .forms import SetNewPasswordForm
 
 
 def set_new_password(request):
@@ -443,7 +445,7 @@ def search_view(request):
 
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
-                   'product_count_in_cart': product_count_in_cart})
+                   'product_count_in_cart': product_count_in_cart, 'query': query})
 
 
 # def search_view(request):
