@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.dispatch import receiver
 from django.shortcuts import render, redirect, reverse
 from django.views.static import serve
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -140,19 +140,23 @@ def event_view(request):
     query = request.GET.get('query', '')
     category = request.GET.get('category', '')
     events = Event.objects.all()
-    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else []
+    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else EventRegistration.objects.none()
     registered_event_ids = registrations.values_list('event_id', flat=True)
-    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in
-                      events}
+    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in events}
 
-    customer = models.Customer.objects.get(user_id=request.user.id)
-    customer_url = customer.profile_pic.url
-    events = Event.objects.all()
+    customer_url = ''
+    if request.user.is_authenticated:
+        try:
+            customer = models.Customer.objects.get(user_id=request.user.id)
+            customer_url = customer.profile_pic.url
+        except ObjectDoesNotExist:
+            customer_url = ''
+
     if query:
         events = events.filter(name__icontains=query)
     if category:
         events = events.filter(category__name=category)
-    print("events", events)
+
     categories = EventCategory.objects.all()
 
     context = {
@@ -163,7 +167,6 @@ def event_view(request):
         'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
-
 
 def autosuggest_view(request):
     query = request.GET.get('query', '')
@@ -1035,6 +1038,8 @@ def edit_profile_view(request):
     mydict = {'user': user, 'customer': customer, 'customer_url': customer_url}
     print(f"Rendering template with context: {mydict}")
     return render(request, 'ecom/v2/profile/edit_profile.html', context=mydict)
+
+
 def dashboard(request):
     categories = models.Category.objects.all()
     top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]
