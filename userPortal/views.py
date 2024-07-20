@@ -118,40 +118,31 @@ def cancel_registration(request, event_id):
 
     return redirect('events')
 
+
 def event_view(request):
-    category_name = request.GET.get('category', None)
-    query = request.GET.get('query', None)
+    query = request.GET.get('query', '')
+    category = request.GET.get('category', '')
+
+    events = Event.objects.all()
+    if query:
+        events = events.filter(name__icontains=query)
+    if category:
+        events = events.filter(category__name=category)
+    print("events", events)
     categories = EventCategory.objects.all()
 
-    if category_name:
-        events = Event.objects.filter(category__name=category_name)
-    elif query:
-        events = Event.objects.filter(name__icontains=query)
-    else:
-        events = Event.objects.all()
-
-    # Prepare event statuses
-    event_statuses = {}
-    for event in events:
-        event_statuses[event.id] = 'full' if event.maximum_attende <= event.registration_count else 'available'
-
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        html = render_to_string('ecom/v2/home/events_list.html', {'events': events, 'event_statuses': event_statuses})
-        return JsonResponse({'html': html})
-
-    return render(request, 'ecom/v2/home/events.html', {
+    context = {
         'events': events,
         'categories': categories,
-        'query': query,
-        'category_name': category_name,
-        'event_statuses': event_statuses,
-    })
+    }
+    return render(request, 'ecom/v2/home/events.html', context)
+
+
 def autosuggest_view(request):
     query = request.GET.get('query', '')
     suggestions = []
-    if query:
-        events = Event.objects.filter(name__icontains=query)
-        suggestions = [event.name for event in events]
+    events = Event.objects.filter(name__icontains=query)
+    suggestions = [event.name for event in events]
 
     return JsonResponse(suggestions, safe=False)
 
@@ -1187,4 +1178,3 @@ def post_detail(request, pk):
     }
 
     return render(request, 'blog/post_detail.html', context)
-

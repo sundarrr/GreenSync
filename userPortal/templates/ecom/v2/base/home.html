@@ -18,43 +18,6 @@
     </div>
 </section>
 
-<section class="featured spad">
-    <div class="container" style="max-width: 1280px;">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title">
-                    <h2>Top Registered Events</h2>
-                </div>
-                <div class="featured__controls">
-                    <ul>
-                        <li class="active" data-filter="*">All</li>
-                        <!-- Add any additional filtering options if needed -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="row featured__filter">
-            {% for event in top_events %}
-            <div class="col-lg-3 col-md-4 col-sm-6 mix">
-                <div class="featured__item">
-                    <div class="featured__item__pic set-bg" data-setbg="{{ event.category.image.url }}">
-                        <ul class="featured__item__pic__hover">
-                            <li><a href="#"><i class="fa fa-info-circle"></i></a></li>
-                        </ul>
-                    </div>
-                    <div class="featured__item__text">
-                        <h6><a href="#">{{ event.name }}</a></h6>
-                        <p>{{ event.description|truncatewords:10|safe }}</p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="text-center">
-            <a href="{% url 'events' %}" class="btn btn-primary">See More</a>
-        </div>
-    </div>
-</section>
 
 <section class="featured spad">
     <div class="container" style="max-width: 1280px;">
@@ -96,6 +59,8 @@
                     </div>
                 </div>
             </div> -->
+                <div class="col-lg-3 col-md-4 col-sm-6 mix {{ category.name }}">
+
             <div class="product-card {{ category.name }}">
                     <img src="{{ product.product_image.url }}" alt="Product" class="product-image" />
                     <div class="product-details">
@@ -116,12 +81,50 @@
                         </div>
                     </div>
             </div>
+            </div>
             {% endfor %}
             {% endfor %}
         </div>
     </div>
 </section>
 
+<section class="featured spad">
+    <div class="container" style="max-width: 1280px;">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <h2>Top Registered Events</h2>
+                </div>
+                <div class="featured__controls">
+                    <ul>
+                        <li class="active" data-filter="*">All</li>
+                        <!-- Add any additional filtering options if needed -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row featured__filter">
+            {% for event in top_events %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mix">
+                <div class="featured__item">
+                    <div class="featured__item__pic set-bg" data-setbg="{{ event.category.image.url }}">
+                        <ul class="featured__item__pic__hover">
+                            <li><a href="#"><i class="fa fa-info-circle"></i></a></li>
+                        </ul>
+                    </div>
+                    <div class="featured__item__text">
+                        <h6><a href="#">{{ event.name }}</a></h6>
+                        <p>{{ event.description|truncatewords:10|safe }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center">
+            <a href="{% url 'events' %}" class="btn btn-success">See More</a>
+        </div>
+    </div>
+</section>
 <section class="featured spad">
     <div class="container" style="max-width: 1280px;">
         <div class="row">
@@ -163,7 +166,7 @@
         transition: transform 0.5s, box-shadow 0.5s;
         margin: 10px;
     }
-    
+
 
 .product-card:hover {
     transform: scale(1.05);

@@ -34,19 +34,50 @@
                 </div>
             </div>
             <div class="col-lg-9">
-                <div style="margin-bottom: -45px; width: 100%; display: flex; justify-content: center; align-items: center;">
-                    <div style="width: 100%; max-width: 600px;">
-                        {% include 'ecom/v2/base/search.html' %}
-                    </div>
-                </div>
+{#                <div style="margin-bottom: -45px; width: 100%; display: flex; justify-content: center; align-items: center;">#}
+{#                    <div style="width: 100%; max-width: 600px;">#}
+{#                        {% include 'ecom/v2/base/search.html' %}#}
+{#                    </div>#}
+{#                </div>#}
 
                 <h3 id="events-title" style="text-align:center; color:green;">Events</h3>
                 <br>
                 <section class="featured spad" style="padding: 50px 0;">
                     <div class="container" style="max-width: 1200px; margin: 0 auto;">
                         <div class="row featured__filter" id="events-list">
-                            {% include 'ecom/v2/home/events_list.html' %}
+                            {% for event in events %}
+                                <div class="col-lg-3 col-md-4 col-sm-6 mix">
+                                    <div class="featured__item" id="event-item-{{ event.id }}">
+                                        <div class="featured__item__pic set-bg" data-setbg="{{ event.category.image.url }}">
+                                            <ul class="featured__item__pic__hover">
+                                                <li>
+                                                    <label for="toggle-{{ event.id }}">
+                                                        <i class="fa fa-info-circle" data-event-id="{{ event.id }}"></i>
+                                                    </label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <input type="checkbox" id="toggle-{{ event.id }}" class="toggle-details">
+                                        <div class="featured__item__text" style="padding: 20px; text-align: center;">
+                                            <h6><a href="#" style="color: #000; text-decoration: none;">{{ event.name }}</a></h6>
+                                            <h5>{{ event.start_date }}</h5>
+                                            {% if event.id in registered_event_ids %}
+                                                <a href="#" class="btn btn-danger cancel-registration" data-event-id="{{ event.id }}" data-event-name="{{ event.name }}">Cancel Registration</a>
+                                            {% else %}
+                                                {% if event_statuses|get_item:event.id == 'full' %}
+                                                    <button class="btn btn-secondary" disabled>Event Full</button>
+                                                {% else %}
+                                                    <a href="#" class="btn btn-primary register-event" data-event-id="{{ event.id }}" data-event-name="{{ event.name }}">Register</a>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
+                        {% if events.count == 0 %}
+                            <p>No events found</p>
+                        {% endif %}
                     </div>
                 </section>
             </div>
@@ -136,7 +167,7 @@
       url: "{% url 'events' %}",
       data: { category: category },
       success: function (data) {
-        $("#events-list").html($(data.html));
+        $("#events-list").html($(data).find("#events-list").html());
       },
     });
   });
@@ -146,16 +177,15 @@
     var query = $(this).val();
     if (query.length > 2) {
       $.ajax({
-        url: "{% url 'events' %}",
+        url: "/autosuggest/",
         data: { query: query },
         dataType: "json",
         success: function (data) {
-          if (data.html) {
-            $("#events-list").html($(data.html));
+          if (data.length > 0) {
             var suggestionsHtml = "<ul>";
-            data.html.forEach(function(item) {
-              suggestionsHtml += "<li>" + item + "</li>";
-            });
+            for (var i = 0; i < data.length; i++) {
+              suggestionsHtml += "<li>" + data[i] + "</li>";
+            }
             suggestionsHtml += "</ul>";
             $("#suggestions").html(suggestionsHtml).show();
           } else {
@@ -174,7 +204,7 @@
       url: "{% url 'events' %}",
       data: { query: targetValue },
       success: function (data) {
-        $("#events-list").html($(data.html));
+        $("#events-list").html($(data).find("#events-list").html());
       },
     });
   });
