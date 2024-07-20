@@ -4,15 +4,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Green Sync</title>
+    <title>EcoGreenMart</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
 <body>
 
-{% include 'ecom/v2/header_admin.html' %}
-<!------ update page for doctor by admin(sumit)  ---------->
+{% include 'ecom/v2/base/header_admin.html' %}
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="container register-form">
@@ -30,6 +29,9 @@
             </div>
             <div class="form-group">
               {% render_field productForm.description class="form-control" placeholder="Description" %}
+            </div>
+            <div class="form-group">
+              {% render_field productForm.stock class="form-control" placeholder="Stock" %}
             </div>
 
           </div>
@@ -52,8 +54,8 @@
 
 
 <br><br>
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>

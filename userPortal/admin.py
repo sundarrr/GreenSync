@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import Customer, Product, Orders
 
+from adminPortal.models import EventRegistration
+from .models import Customer, Product, Orders, Post, Comment, Category, Cart
 
 # Register your models here.
 class CustomerAdmin(admin.ModelAdmin):
@@ -22,3 +23,21 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Orders, OrderAdmin)
+
+
+admin.site.register(Post)
+admin.site.register(Comment)
+admin.site.register(Cart)
+
+class CategoryAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Category, CategoryAdmin)
+
+
+# class EventRegistrationAdmin(admin.ModelAdmin):
+#     list_display = ('event', 'user', 'registration_date')
+#     list_filter = ('event', 'registration_date')
+#     search_fields = ('event__name', 'user__username')
+#
+# admin.site.register(EventRegistration, EventRegistrationAdmin)

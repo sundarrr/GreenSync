@@ -4,13 +4,22 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Green Sync</title>
+    <title>EcoGreenMart</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
-
+<script>
+        function checkStockAndPurchase() {
+            const outOfStockProducts = {{ out_of_stock_products|length }};
+            if (outOfStockProducts > 0) {
+                alert('Few products in your cart are out of stock. Please remove the items or try reducing the quantity !');
+            } else {
+                window.location.href = '/customer-address';
+            }
+        }
+    </script>
 <body>
-{% include 'ecom/v2/header_after_login.html' %}
+{% include 'ecom/v2/base/header_after_login.html' %}
 
 
 <div class="container" style="padding:20px">
@@ -26,26 +35,48 @@
                 <th>Image</th>
                 <th>Price</th>
                 <th>Description</th>
-                <th>Remove From Cart</th>
-
+                <th>Quantity</th>
+                <th>Availability</th>
+                <th>Options</th>
             </tr>
             </thead>
             {% for p in products %}
-                {% if p %}
+            {% if p %}
+        
+                <tr>
+                    <td> {{ p.product.name }}</td>
+                    <td><img src="{{  p.product.product_image.url }}" alt="product picture" height="40px" width="40px"/>
+                    </td>
+                    <td>{{ p.product.price }}</td>
+                    <td>{{ p.product.description }}</td>
+        
+                    <!-- Update Quantity Column -->
+                    <td>
+                        <a class="btn btn-default btn-xs" {% if p.quantity > 1 %} href="{% url 'decrease-quantity' p.product.id %}" {% endif %}>
+                            <i class="fa fa-minus"></i>
+                        </a>
+                        {{ p.quantity }}
+                        <a class="btn btn-default btn-xs" {% if p.product.stock >= p.quantity %} href="{% url 'increase-quantity' p.product.id %}" {% endif %}>
+                            <i class="fa fa-plus"></i>
+                        </a>
+                    </td>
+                        {% if p.product in out_of_stock_products %}
+                            <td>
+                            <p style="color: red;">Out of Stock</p>
+                            </td>
+                            {% else %}
+                            <td>
+                            <p style="color: green;">In Stock</p>
+                            </td>
+                        {% endif %}
 
-                    <tr>
-                        <td> {{ p.name }}</td>
-                        <td><img src="{% static p.product_image.url %}" alt="Profile Pic" height="40px" width="40px"/>
-                        </td>
-                        <td>{{ p.price }}</td>
-                        <td>{{ p.description }}</td>
 
-                        <td><a class="btn btn-danger btn-xs" href="{% url 'remove-from-cart' p.id %}"> <i
-                                class="fa fa-trash"></i>
-                        </td>
-
-                    </tr>
-                {% else %}
+                    <td><a class="btn btn-danger btn-xs" href="{% url 'remove-from-cart' p.product.id %}"> <i
+                            class="fa fa-trash"></i></a>
+                    </td>
+        
+                </tr>
+            {% else %}
                     <br><br><br>
                     <h1>no products</h1>
                 {% endif %}
@@ -53,18 +84,17 @@
         </table>
     </div>
 </div>
-<div style="text-align: center;">
-    <!-- Total button -->
-<button class="btn btn-success">Total {{ total }}</button>
-
-<!-- Purchase link styled as a button -->
-<a href="/customer-address" class="btn btn-success">Purchase</a>
+<div style="display: flex; justify-content: center; align-items: center; text-align: center;">
+    <!-- Total amount -->
+    <p style="margin-right: 20px; margin-top: 15px">Total ${{ total }}</p>
+    <!-- Purchase link styled as a button -->
+    <button class="btn btn-success" onclick="checkStockAndPurchase()">Purchase</button>
 </div>
 
 <br><br><br>
 
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>

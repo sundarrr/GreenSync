@@ -4,13 +4,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Green Sync</title>
+    <title>EcoGreenMart</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
 <body>
-{% include 'ecom/v2/header_after_login.html' %}
+{% include 'ecom/v2/base/header_after_login.html' %}
 <style media="screen">
 
 .container {
@@ -167,31 +167,34 @@ p {
 <div class="container">
     <header class="card-header" style="text-align:center;"> My Orders / Tracking </header>
 
-    {% for products,order in data %}
+    {% for order  in orders %}
 
     <article class="card">
         <div class="card-body">
+        <ul class="row" style="margin-left:20px;margin-top:20px;">
+        <li class="col-md-4">
+                    <div class="col"> <strong>Shipment Address:</strong> <br> {{order.address}}</div>
+                </li>
+                <li class="col-md-4">
+                    <div class="col"> <strong>Status:</strong> <br> {{order.status}} </div> <br>
+                </li>
+                <li>
+                    <h4><a style="text-decoration:none; color:blue;" href="{% url 'download-invoice' order.id %}" >Download Invoice</a></h4>
+                </li>
+        </ul>
             <ul class="row" style="margin-left:20px;margin-top:20px;">
+            {%for product in order.products.all%}
                 <li class="col-md-4">
                   <figure class="itemside mb-3">
-                    {%for product in products%}
-                      <div class="aside"><img src="{% static product.product_image.url %}" class="img-sm border"></div>
+                      <div class="aside"><img src="{{  product.product_image.url }}" class="img-sm border"></div>
                       <figcaption class="info align-self-center">
 
                           <p class="title"><strong>Name : </strong>{{product.name}} <br> <strong>Description : </strong>{{product.description}}</p> <span class="text-muted"><strong>Price : </strong>{{product.price}} </span>
 
                       </figcaption>
-
                   </figure>
                 </li>
-                <li class="col-md-4">
-                    <div class="col"> <strong>Shipment Address:</strong> <br> {{order.address}}</div>
-                </li>
-                <li class="col-md-4">
-                    <div class="col"> <strong>Status:</strong> <br> {{order.status}} </div> <br>
-                    <h4><a style="text-decoration:none; color:blue;" href="{% url 'download-invoice' order.id product.id  %}" >Download Invoice</a></h4>
-                </li>
-                {%endfor%}
+            {%endfor%}
             </ul>
             <hr>
 
@@ -221,10 +224,10 @@ p {
 
         </div>
     </article><br>
-    {%endfor%}
+    {% endfor %}
 </div>
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>

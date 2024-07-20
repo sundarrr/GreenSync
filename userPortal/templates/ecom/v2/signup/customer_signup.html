@@ -4,21 +4,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Green Sync</title>
+    <title>EcoGreenMart</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
 <body>
-{% include 'ecom/v2/header.html' %}
-   <div class="container" style="margin: 20px;">
+{% include 'ecom/v2/base/header.html' %}
+<div class="container" style="margin:20px;max-width: 100%;">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card" style="padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <div class="card"
+                 style="padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
                 <form class="box" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <h3 class="text-center" style="margin-bottom: 20px;">CUSTOMER SIGNUP</h3>
-                    <p class="text-muted text-center" style="margin-bottom: 30px;"> Please enter your details to create an account!</p>
+                    <h3 class="text-center" style="margin-bottom: 20px;">Customer Signup</h3>
+                    <p class="text-muted text-center" style="margin-bottom: 30px;"> Please enter your details to create
+                        an account!</p>
                     <div class="form-group">
                         {% render_field userForm.first_name class="form-control" placeholder="First Name" %}
                     </div>
@@ -27,6 +29,9 @@
                     </div>
                     <div class="form-group">
                         {% render_field userForm.username class="form-control" placeholder="Username" %}
+                    </div>
+                    <div class="form-group">
+                        {% render_field customerForm.email class="form-control" placeholder="Email" %}
                     </div>
                     <div class="form-group">
                         {% render_field userForm.password class="form-control" placeholder="Password" %}
@@ -40,8 +45,14 @@
                     <div class="form-group">
                         {% render_field customerForm.profile_pic class="form-control" placeholder="Profile pic" %}
                     </div>
+                     <div class="form-group">
+                        {% render_field customerForm.security_question class="form-control" placeholder="Select a Security Question" %}
+                    </div>
+                    <div class="form-group">
+                    {% render_field customerForm.security_answer class="form-control" placeholder="Answer" %}
+                    </div>
                     <div class="form-group text-center">
-                        <input type="submit" class="btn btn-primary" value="Create" style="width: 100%;">
+                        <input type="submit" class="btn btn-success" value="Create" style="width: 100%;">
                     </div>
                 </form>
             </div>
@@ -50,9 +61,8 @@
 </div>
 
 
-
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>

@@ -1,0 +1,97 @@
+{% load static %}
+
+<!-- Page Preloder -->
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+
+<!-- Humberger Begin -->
+<div class="humberger__menu__overlay"></div>
+<div class="humberger__menu__wrapper">
+    <div class="humberger__menu__logo">
+        <a href="{% url '' %}"><img src="{% static 'media/img/logo.png' %}" width="20%" alt="">
+            <span>EcoGreenMart</span></a>
+
+    </div>
+    <nav class="humberger__menu__nav mobile-menu">
+        <ul>
+            <li class="active"><a href="{% url '' %}">Home</a></li>
+            <li class="active"><a href="{% url 'product-search' %}">Shop</a></li>
+            <li class="active"><a href="{% url 'blog-home' %}">Forum</a></li>
+            <li class="active"><a href="{% url 'events' %}">Event</a></li>
+
+        </ul>
+    </nav>
+    <div id="mobile-menu-wrap"></div>
+    
+</div>
+<!-- Humberger End -->
+
+<!-- Header Section Begin -->
+<header class="header">
+    <div class="header__top">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="header__top__left">
+                        <ul>
+                            <li><i class="fa fa-envelope"></i><a style="color:black;" href="mailto:admin@ecogreenmart.in">admin@ecogreenmart.in</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="header__top__right">
+                        <div class="header__top__right__auth">
+                            <a href="/my-order"><i class="fa fa-shopping-cart"></i> Order</a>
+                        </div>
+
+                        <div class="header__top__right__auth">
+                            <a href="/my-profile"><i class="fa fa-user"></i> Profile</a>
+                        </div>
+                        <div class="header__top__right__auth">
+                            <a href={% url 'logout' %}><i class="fa fa-sign-out"></i> Log Out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="header__logo">
+                    <a href="{% url '' %}"><img src="{% static 'media/img/logo.png' %}" width="20%" alt="">
+                        <span class="header__cart__price">EcoGreenMart</span></a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <nav class="header__menu">
+                    <ul>
+                        <li class="{% if request.path == '/' %}active{% endif %}"><a href="{% url '' %}">HOME</a></li>
+                        <li class="{% if request.path == '/shop/' %}active{% endif %}"><a href="{% url 'product-search' %}">SHOP</a></li>
+                        <li class="{% if request.path == '/forum/' %}active{% endif %}"><a href="{% url 'blog-home' %}">FORUM</a></li>
+                        <li class="{% if request.path == '/events/' %}active{% endif %}"><a href="{% url 'events' %}" style="{% if request.path == '/events/' %}color: green;{% endif %}">EVENTS</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-lg-3">
+                <div class="col-lg-3">
+                <div class="header__cart">
+                    <ul style="display:flex;align-items: center;">
+                        <li style="margin-right: 40px"><a href="/cart"><i class="fa fa-shopping-bag"></i> <span>{{ product_count_in_cart }}</span></a>
+
+                        <li  style="display:flex; align-items: self-end;">
+                            <img src="{{ customer_url }}" alt="profile pic"
+                                 class="rounded-circle article-img" style="width: 48px; height: 48px;margin-right: 8px"/>
+                            <p style="font-weight:bold">{{ request.user }} </p>
+                        </li>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="humberger__open">
+            <i class="fa fa-bars"></i>
+        </div>
+    </div>
+</header>

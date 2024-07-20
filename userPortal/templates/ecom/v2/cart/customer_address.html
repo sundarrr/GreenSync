@@ -4,13 +4,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Green Sync</title>
+    <title>EcoGreenMart</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
 <body>
-{% include 'ecom/v2/header_after_login.html' %}
+{% include 'ecom/v2/base/header_after_login.html' %}
 <form method="post" style="max-width: 600px; margin: auto; background: #f9f9f9; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
   {% csrf_token %}
   <ul style="list-style: none; padding: 0;">
@@ -34,8 +34,8 @@
 
 <br><br><br>
 
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>

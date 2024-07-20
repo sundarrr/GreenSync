@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 
+from django.core.checks import templates
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,10 +28,14 @@ SECRET_KEY = 'django-insecure-+$i1&wst0u^(77^vw9x*&fkc+pk*c+%w!fb1@hr)3k(=sr+!^o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1","ecogreenmart.in","www.ecogreenmart.in"]
 
-
-# Application definition
+CSRF_TRUSTED_ORIGINS = [
+    'https://ecogreenmart.in',
+    'https://www.ecogreenmart.in'
+]
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,7 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "adminPortal.apps.AdminportalConfig",
-    "userPortal.apps.UserportalConfig"
+    "userPortal.apps.UserportalConfig",
+    'widget_tweaks',
+    'crispy_forms',
+    'ckeditor',
+    'ckeditor_uploader',
+    'betterforms',
+    'crispy_bootstrap4',
+    'mapbox_location_field',
 ]
 
 MIDDLEWARE = [
@@ -49,7 +63,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'userPortal.middleware.SessionTimeoutMiddleware',
 ]
+
+
+SESSION_COOKIE_AGE = 600
+SESSION_SAVE_EVERY_REQUEST = True
+
 
 ROOT_URLCONF = 'GreenSyncIAT.urls'
 
@@ -72,7 +92,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'GreenSyncIAT.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -82,7 +101,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -102,7 +120,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -114,13 +131,39 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MAPBOX_KEY = 'pk.eyJ1IjoicmFrdWwyMCIsImEiOiJjbHlxZXc2cDEwOWtyMmxwdDgwaDRwdHdqIn0.6DBSL1JDtxEZQidFiCKdhg'
+
+CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+    },
+}
+
+BASE_DIR1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# URL to redirect to for login
+LOGIN_URL = "/accounts/login/"
+
+# URL to redirect to after login
+LOGIN_REDIRECT_URL = "/afterlogin"
+
+# URL to redirect to after logout
+LOGOUT_REDIRECT_URL = "/dashboard"
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR1, 'static')]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR1, 'media')

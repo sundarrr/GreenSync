@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <title>EcoGreenMart</title>
+    {% load static %}
+    {% include 'ecom/v2/base/load_css.html' %}
+</head>
+
+<body>
+
+{% include 'ecom/v2/base/header_admin.html' %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="container register-form">
+    <div class="form">
+        <br>
+      <div class="note">
+        <h3>ADD CATEGORY</h3>
+      </div>
+        <br>
+      <div class="form-content">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              {% render_field form.name class="form-control" placeholder="Category Name" %}
+            </div>
+            <div class="form-group">
+              {% render_field form.description class="form-control" placeholder="Description" %}
+            </div>
+              <div class="form-group">
+              {% render_field form.category_image class="form-control" placeholder="category_image" %}
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success btnSubmit">Add</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<br><br>
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
+</body>
+
+</html>

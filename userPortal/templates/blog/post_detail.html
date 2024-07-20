@@ -1,0 +1,101 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    <style>
+        .comment-section {
+            max-width: 700px;
+            margin: auto;
+        }
+        .comment-section h2 {
+            font-size: 1rem; /* Adjust as needed */
+        }
+        .comment-section form {
+            font-size: 0.775rem; /* Adjust as needed */
+        }
+        .comment-section button {
+            font-size: 0.875rem; /* Adjust as needed */
+        }
+    </style>
+
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="/media/{{ post.author.profile_pic }}">
+        <div class="media-body">
+            <div class="article-metadata">
+                {% if post.author.user.username %}
+                    <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}">{{ post.author }}</a>
+                {% else %}
+                    <span>{{ post.author }}</span>
+                {% endif %}
+                <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+            </div>
+            <h2 class="article-title">{{ post.title }}</h2>
+            <p class="article-content">{{ post.content }}</p>
+            {% if post.file %}
+                <a href="{{ post.file.url }}" download>Download</a>
+            {% endif %}
+            <br><br>
+            {% if request.user == post.author.user %}
+                <a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+            {% endif %}
+        </div>
+    </article>
+
+    <section class="comment-section">
+        <h2>Comments</h2>
+        {% for comment in comments %}
+            <div class="media mb-3">
+                <img class="rounded-circle article-img" src="/media/{{ comment.author.profile_pic }}" style="width: 40px; height: 40px;">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        {% if comment.author.user.username %}
+                            <a class="mr-2" href="{% url 'user-posts' comment.author.user.username %}">{{ comment.author }}</a>
+                        {% else %}
+                            <span>{{ comment.author }}</span>
+                        {% endif %}
+                        <small class="text-muted">{{ comment.date_posted|date:"F d, Y" }}</small>
+                    </div>
+                    <p class="article-content">{{ comment.content }}</p>
+                    {% if request.user.is_authenticated %}
+                        <button type="button" class="btn btn-link reply-btn" data-toggle="collapse" data-target="#reply-{{ comment.id }}">Reply</button>
+                        <div id="reply-{{ comment.id }}" class="collapse">
+                            <form method="POST">
+                                {% csrf_token %}
+                                {{ reply_form.as_p }}
+                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                <button type="submit" name="reply_form" class="btn btn-primary">Reply</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                    {% for reply in comment.replies.all %}
+                        <div class="media mt-3">
+                            <img class="rounded-circle article-img" src="{{ reply.author.profile_pic }}" style="width: 40px; height: 40px;">
+                            <div class="media-body">
+                                <div class="article-metadata">
+                                    {% if reply.author.username %}
+                                        <a class="mr-2" href="{% url 'user-posts' reply.author.username %}">{{ reply.author }}</a>
+                                    {% else %}
+                                        <span>{{ reply.author }}</span>
+                                    {% endif %}
+                                    <small class="text-muted">{{ reply.date_posted|date:"F d, Y" }}</small>
+                                </div>
+                                <p class="article-content">{{ reply.content }}</p>
+                            </div>
+                        </div> 
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </section>
+    <hr>
+
+    {% if request.user.is_authenticated %}
+        <section class="comment-section">
+            <h2 style="color: rgb(19, 13, 136);">Add new comment</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <button type="submit" name="comment_form" class="btn btn-primary">Post Comment</button>
+            </form>
+        </section>
+    {% endif %}
+{% endblock %}

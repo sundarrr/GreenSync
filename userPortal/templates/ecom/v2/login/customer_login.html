@@ -4,14 +4,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Green Sync</title>
+    <title>EcoGreenMart</title>
     {% load static %}
-    {% include 'ecom/v2/load_css.html' %}
+    {% include 'ecom/v2/base/load_css.html' %}
 </head>
 
 <body>
-{% include 'ecom/v2/header.html' %}
-<div class="container" style="margin:20px">
+{% include 'ecom/v2/base/header.html' %}
+<div class="container" style="margin:20px;max-width: 100%;">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <form class="box" method="post" style="padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
@@ -25,7 +25,10 @@
                     {% render_field form.password class="form-control" placeholder="Password" %}
                 </div>
                 <div class="form-group text-center">
-                    <input type="submit" class="btn btn-primary" value="Login" style="width: 100%;">
+                <a href="{% url 'forgot_password' %}" class="text-muted">Forgot Password?</a>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" class="btn btn-success" value="Login" style="width: 100%;">
                 </div>
             </form>
         </div>
@@ -33,8 +36,8 @@
 </div>
 
 
-{% include 'ecom/v2/footer.html' %}
-{% include 'ecom/v2/js.html' %}
+{% include 'ecom/v2/base/footer.html' %}
+{% include 'ecom/v2/base/js.html' %}
 </body>
 
 </html>
