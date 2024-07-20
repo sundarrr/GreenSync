@@ -28,24 +28,23 @@
                     </div>
                     <ul>
                         {% for category in categories %}
-                            <li><a href="/search?category={{ category.name }}">{{ category.name }}</a></li>
+                            <li><a href="#" class="category-filter" data-category="{{ category.name }}">{{ category.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
             <div class="col-lg-9">
-                <div style="margin-bottom: -45px; width: 100%; display: flex; justify-content: center; align-items: center;">
-                    <div style="width: 100%; max-width: 600px;">
-                        {% include 'ecom/v2/base/search.html' %}
-                    </div>
-                </div>
+{#                <div style="margin-bottom: -45px; width: 100%; display: flex; justify-content: center; align-items: center;">#}
+{#                    <div style="width: 100%; max-width: 600px;">#}
+{#                        {% include 'ecom/v2/base/search.html' %}#}
+{#                    </div>#}
+{#                </div>#}
 
                 <h3 id="events-title" style="text-align:center; color:green;">Events</h3>
-
                 <br>
                 <section class="featured spad" style="padding: 50px 0;">
                     <div class="container" style="max-width: 1200px; margin: 0 auto;">
-                        <div class="row featured__filter">
+                        <div class="row featured__filter" id="events-list">
                             {% for event in events %}
                                 <div class="col-lg-3 col-md-4 col-sm-6 mix">
                                     <div class="featured__item" id="event-item-{{ event.id }}">
@@ -76,6 +75,9 @@
                                 </div>
                             {% endfor %}
                         </div>
+                        {% if events.count == 0 %}
+                            <p>No events found</p>
+                        {% endif %}
                     </div>
                 </section>
             </div>
@@ -156,5 +158,81 @@
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="{% static 'js/event_details.js' %}"></script>
 <script src="{% static 'js/cancel_popup.js' %}"></script>
+<script>
+  // Handle category filtering
+  $(".category-filter").on("click", function (e) {
+    e.preventDefault();
+    var category = $(this).data("category");
+    $.ajax({
+      url: "{% url 'events' %}",
+      data: { category: category },
+      success: function (data) {
+        $("#events-list").html($(data).find("#events-list").html());
+      },
+    });
+  });
+
+  // Handle search functionality
+  $("#query").on("input", function () {
+    var query = $(this).val();
+    if (query.length > 2) {
+      $.ajax({
+        url: "/autosuggest/",
+        data: { query: query },
+        dataType: "json",
+        success: function (data) {
+          if (data.length > 0) {
+            var suggestionsHtml = "<ul>";
+            for (var i = 0; i < data.length; i++) {
+              suggestionsHtml += "<li>" + data[i] + "</li>";
+            }
+            suggestionsHtml += "</ul>";
+            $("#suggestions").html(suggestionsHtml).show();
+          } else {
+            $("#suggestions").html("<ul><li>No results found</li></ul>").show();
+          }
+        },
+      });
+    } else {
+      $("#suggestions").hide();
+    }
+  });
+
+  $("#suggestions").on("click", "li", function (e) {
+    var targetValue = $(this).text();
+    $.ajax({
+      url: "{% url 'events' %}",
+      data: { query: targetValue },
+      success: function (data) {
+        $("#events-list").html($(data).find("#events-list").html());
+      },
+    });
+  });
+
+  $(document).on("click", function (e) {
+    if (!$(e.target).closest("#query").length) {
+      $("#suggestions").hide();
+    }
+  });
+
+  // Handle modals for register and cancel
+  $(document).on("click", ".register-event", function (e) {
+    e.preventDefault();
+    var eventName = $(this).data("event-name");
+    var eventId = $(this).data("event-id");
+    $("#register-event-name").text(eventName);
+    $("#confirm-register").attr("href", "/register_event/" + eventId);
+    $("#registerModal").modal("show");
+  });
+
+  $(document).on("click", ".cancel-registration", function (e) {
+    e.preventDefault();
+    var eventName = $(this).data("event-name");
+    var eventId = $(this).data("event-id");
+    $("#cancel-event-name").text(eventName);
+    $("#confirm-cancel").attr("href", "/cancel_registration/" + eventId);
+    $("#cancelModal").modal("show");
+  });
+</script>
 </body>
 </html>

@@ -16,7 +16,7 @@ from django.contrib import messages
 from django.conf import settings
 import io
 from xhtml2pdf import pisa
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.template import Context
 from django.http import HttpResponse
 from django.contrib.auth import update_session_auth_hash
@@ -119,21 +119,32 @@ def cancel_registration(request, event_id):
     return redirect('events')
 
 
-@login_required(login_url='customerlogin')
 def event_view(request):
+    query = request.GET.get('query', '')
+    category = request.GET.get('category', '')
+
     events = Event.objects.all()
+    if query:
+        events = events.filter(name__icontains=query)
+    if category:
+        events = events.filter(category__name=category)
+    print("events", events)
     categories = EventCategory.objects.all()
-    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else []
-    registered_event_ids = registrations.values_list('event_id', flat=True)
-    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in
-                      events}
+
     context = {
         'events': events,
         'categories': categories,
-        'registered_event_ids': registered_event_ids,
-        'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
+
+
+def autosuggest_view(request):
+    query = request.GET.get('query', '')
+    suggestions = []
+    events = Event.objects.filter(name__icontains=query)
+    suggestions = [event.name for event in events]
+
+    return JsonResponse(suggestions, safe=False)
 
 def get_event_details(request, event_id):
     try:
