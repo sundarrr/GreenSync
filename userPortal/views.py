@@ -83,26 +83,37 @@ def home_view(request):
         print(e)
         return HttpResponseRedirect('dashboard')
 
-@login_required(login_url='customerlogin')
+
 def register_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
 
     if event.registration_count >= event.maximum_attende:
-        messages.error(request, "This event is full. Registration is not possible.")
-        return redirect('events')
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': "This event is full. Registration is not possible."})
+        else:
+            messages.error(request, "This event is full. Registration is not possible.")
+            return redirect('events')
 
     registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
     if created:
-        messages.success(request, f"You have successfully registered for {event.name} event.")
-        send_email(user.email,
-                   'Event Registration Successful',
-                   f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
-
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            send_email(user.email,
+                       'Event Registration Successful',
+                       f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
+            return JsonResponse({'success': True, 'event_name': event.name})
+        else:
+            messages.success(request, f"You have successfully registered for {event.name} event.")
+            send_email(user.email,
+                       'Event Registration Successful',
+                       f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
     else:
-        messages.info(request, f"You are already registered for {event.name} event.")
-    return redirect('events')
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': f"You are already registered for {event.name} event."})
+        else:
+            messages.info(request, f"You are already registered for {event.name} event.")
 
+    return redirect('events')
 
 @login_required
 def cancel_registration(request, event_id):
@@ -122,6 +133,11 @@ def cancel_registration(request, event_id):
 def event_view(request):
     query = request.GET.get('query', '')
     category = request.GET.get('category', '')
+    events = Event.objects.all()
+    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else []
+    registered_event_ids = registrations.values_list('event_id', flat=True)
+    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in
+                      events}
 
     events = Event.objects.all()
     if query:
@@ -134,6 +150,8 @@ def event_view(request):
     context = {
         'events': events,
         'categories': categories,
+        'registered_event_ids': registered_event_ids,
+        'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
