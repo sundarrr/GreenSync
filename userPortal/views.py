@@ -122,7 +122,8 @@ def cancel_registration(request, event_id):
 def event_view(request):
     query = request.GET.get('query', '')
     category = request.GET.get('category', '')
-
+    customer = models.Customer.objects.get(user_id=request.user.id)
+    customer_url = customer.profile_pic.url
     events = Event.objects.all()
     if query:
         events = events.filter(name__icontains=query)
@@ -134,6 +135,7 @@ def event_view(request):
     context = {
         'events': events,
         'categories': categories,
+        'customer_url': customer_url
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
@@ -443,7 +445,7 @@ def search_view(request):
 
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
-                   'product_count_in_cart': product_count_in_cart})
+                   'product_count_in_cart': product_count_in_cart, 'query': query})
 
 
 # def search_view(request):
