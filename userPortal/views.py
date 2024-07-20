@@ -16,7 +16,7 @@ from django.contrib import messages
 from django.conf import settings
 import io
 from xhtml2pdf import pisa
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.template import Context
 from django.http import HttpResponse
 
@@ -118,22 +118,42 @@ def cancel_registration(request, event_id):
 
     return redirect('events')
 
-
-@login_required(login_url='customerlogin')
 def event_view(request):
-    events = Event.objects.all()
+    category_name = request.GET.get('category', None)
+    query = request.GET.get('query', None)
     categories = EventCategory.objects.all()
-    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else []
-    registered_event_ids = registrations.values_list('event_id', flat=True)
-    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in
-                      events}
-    context = {
+
+    if category_name:
+        events = Event.objects.filter(category__name=category_name)
+    elif query:
+        events = Event.objects.filter(name__icontains=query)
+    else:
+        events = Event.objects.all()
+
+    # Prepare event statuses
+    event_statuses = {}
+    for event in events:
+        event_statuses[event.id] = 'full' if event.maximum_attende <= event.registration_count else 'available'
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('ecom/v2/home/events_list.html', {'events': events, 'event_statuses': event_statuses})
+        return JsonResponse({'html': html})
+
+    return render(request, 'ecom/v2/home/events.html', {
         'events': events,
         'categories': categories,
-        'registered_event_ids': registered_event_ids,
+        'query': query,
+        'category_name': category_name,
         'event_statuses': event_statuses,
-    }
-    return render(request, 'ecom/v2/home/events.html', context)
+    })
+def autosuggest_view(request):
+    query = request.GET.get('query', '')
+    suggestions = []
+    if query:
+        events = Event.objects.filter(name__icontains=query)
+        suggestions = [event.name for event in events]
+
+    return JsonResponse(suggestions, safe=False)
 
 def get_event_details(request, event_id):
     try:
@@ -1098,3 +1118,4 @@ def post_detail(request, pk):
     }
 
     return render(request, 'blog/post_detail.html', context)
+
