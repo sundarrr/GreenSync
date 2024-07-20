@@ -51,7 +51,11 @@ from .views import (
     privacy_policy,
     logout_view,
     increase_quantity,
-    decrease_quantity
+    decrease_quantity,
+    forgot_password,
+    set_new_password,
+    security_question,
+    decrease_quantity, get_event_details
 )
 
 urlpatterns = [
@@ -65,6 +69,7 @@ urlpatterns = [
     path('register_event/<int:event_id>/', register_event, name='register_event'),
     path('cancel_registration/<int:event_id>/', cancel_registration, name='cancel_registration'),
     path('events/', event_view, name='events'),
+    path('get_event_details/<int:event_id>/', get_event_details, name='get_event_details'),
 
     path('adminclick', adminclick_view),
     path('admin-portal/', admin_portal_view, name='admin-portal'),
@@ -87,6 +92,9 @@ urlpatterns = [
 
     path('customersignup', customer_signup_view),
     path('customerlogin', LoginView.as_view(template_name='ecom/v2/login/customer_login.html'), name='customerlogin'),
+    path('forgot-password/', forgot_password, name='forgot_password'),
+    path('security-question/', security_question, name='security_question'),
+    path('set-new-password/', set_new_password, name='set_new_password'),
     path('accounts/login/', LoginView.as_view(template_name='ecom/v2/login/customer_login.html'), name='accounts/login/'),
     path('customer-home/', customer_home_view, name='customer-home'),
     path('my-order', my_order_view, name='my-order'),

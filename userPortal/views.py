@@ -19,12 +19,12 @@ from xhtml2pdf import pisa
 from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
-
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Comment, Customer, Admin, Product, Orders
 from .forms import CategoryForm, ReplyForm, CommentForm
 from .models import Category, User, Cart, CartProduct
-from .forms import CategoryForm
+from .forms import CategoryForm,UsernameForm, SecurityQuestionForm, SetNewPasswordForm
 from adminPortal.models import Event, EventCategory, EventRegistration
 
 # QA Forum
@@ -135,6 +135,23 @@ def event_view(request):
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
+def get_event_details(request, event_id):
+    try:
+        event = Event.objects.get(pk=event_id)
+        coords = event.location if isinstance(event.location, (list, tuple)) else event.location.coords
+        data = {
+            'name': event.name,
+            'description': event.description,
+            'venue': event.venue,
+            'location': coords,
+            'end_date': event.end_date.strftime('%Y-%m-%d'),
+            'max_attendees': event.maximum_attende,
+            'image': event.category.image.url if event.category and event.category.image else ''
+        }
+        return JsonResponse(data)
+    except Event.DoesNotExist:
+        return JsonResponse({'error': 'Event not found'})
+
 @login_required(login_url='adminlogin')
 def adminclick_view(request):
     return HttpResponseRedirect('admin-dashboard')
@@ -163,6 +180,75 @@ def customer_signup_view(request):
     # return render(request,'ecom/customersignup.html',context=mydict)
     return render(request, 'ecom/v2/signup/customer_signup.html', context=mydict)
 
+
+def forgot_password(request):
+    if request.method == 'POST':
+        form = UsernameForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            try:
+                user = User.objects.get(username=username)
+                customer = Customer.objects.get(user=user)
+                request.session['reset_user_id'] = user.id
+                return redirect('security_question')
+            except (User.DoesNotExist, Customer.DoesNotExist):
+                messages.error(request, 'Invalid username')
+    else:
+        form = UsernameForm()
+    return render(request, 'ecom/v2/login/forgot_password.html', {'form': form})
+
+
+def security_question(request):
+    user_id = request.session.get('reset_user_id')
+    if not user_id:
+        return redirect('forgot_password')
+
+    user = get_object_or_404(User, id=user_id)
+    customer = get_object_or_404(Customer, user=user)
+
+    if request.method == 'POST':
+        form = SecurityQuestionForm(request.POST)
+        if form.is_valid():
+            security_answer = form.cleaned_data['security_answer']
+            if security_answer == customer.security_answer:
+                return redirect('set_new_password')
+            else:
+                messages.error(request, 'Incorrect answer')
+    else:
+        form = SecurityQuestionForm()
+
+    return render(request, 'ecom/v2/login/security_question.html',
+                  {'form': form, 'security_question': customer.get_security_question_display()})
+
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .forms import SetNewPasswordForm
+
+
+def set_new_password(request):
+    user_id = request.session.get('reset_user_id')
+    if not user_id:
+        return redirect('forgot_password')
+
+    user = User.objects.get(id=user_id)
+    print(f"User: {user.username}")
+
+    if request.method == 'POST':
+        form = SetNewPasswordForm(user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important, to update the session with the new password
+            messages.success(request, 'Your password has been successfully updated!')
+            return redirect('customerlogin')
+        else:
+            print("Form is not valid")
+    else:
+        form = SetNewPasswordForm(user)
+
+    return render(request, 'ecom/v2/login/set_new_password.html', {'form': form})
 
 def is_customer(user):
     return user.groups.filter(name='CUSTOMER').exists()
@@ -335,9 +421,14 @@ def search_view(request):
     word = ""
 
     if request.user.is_authenticated:
+        try:
+            customer = models.Customer.objects.get(user_id=request.user.id)
+            customer_url = customer.profile_pic.url
+        except Exception as e:
+            customer_url = 'profile_pic/default.png'
         return render(request, 'ecom/v2/home/customer_home.html',
                       {'products': products, 'word': word, 'product_count_in_cart': product_count_in_cart,
-                       'categories': categories})
+                       'categories': categories,'customer_url':customer_url})
 
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
@@ -579,9 +670,15 @@ def customer_home_view(request):
         product_count_in_cart = cart['product_count_in_cart']
     except Exception as e:
         product_count_in_cart = 0
+
+    try:
+        customer = models.Customer.objects.get(user_id=request.user.id)
+        customer_url = customer.profile_pic.url
+    except Exception as e:
+        customer_url = 'profile_pic/default.png'
     # return render(request,'ecom/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
     return render(request, 'ecom/v2/home/customer_home.html',
-                  {'products': products, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
+                  {'products': products,'customer_url':customer_url, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
 
 # @login_required(login_url='customerlogin')
@@ -848,8 +945,8 @@ def download_invoice_view(request, orderID):
 @user_passes_test(is_customer)
 def my_profile_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
-    return render(request, 'ecom/v2/profile/my_profile.html', {'customer': customer})
-
+    customer_url = customer.profile_pic.url
+    return render(request, 'ecom/v2/profile/my_profile.html', {'customer': customer, 'customer_url':customer_url})
 
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
@@ -875,11 +972,16 @@ def dashboard(request):
     categories = models.Category.objects.all()
     top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]
     top_threads = Post.objects.order_by('-date_posted')[:3]
-
+    try:
+        customer = models.Customer.objects.get(user_id=request.user.id)
+        customer_url = customer.profile_pic.url
+    except Exception as e:
+        customer_url = 'profile_pic/default.png'
     context = {
         'categories': categories,
         'top_events': top_events,
         'top_threads': top_threads,
+        'customer_url':customer_url
     }
     return render(request, 'ecom/v2/home/user-dashboard.html', context)
 

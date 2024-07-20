@@ -13,11 +13,19 @@ class Admin(models.Model):
 
 # Other existing models...
 class Customer(models.Model):
+    SECURITY_QUESTION_CHOICES = [
+        ('pet', 'What was the name of your first pet?'),
+        ('town', 'What is the name of the town where you were born?'),
+        ('car', 'What was the model of your first car?'),
+        ('book', 'What is your favorite book?')
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_pic = models.ImageField(upload_to='images/', default='user.png', null=True, blank=True)
     address = models.CharField(max_length=40)
     email = models.EmailField(null=False, blank=False, default='saravanan.c9495@gmail.com')
     mobile = models.CharField(max_length=20, null=False)
+    security_question = models.CharField(max_length=255, choices=SECURITY_QUESTION_CHOICES, default='What was the name of your first pet?')
+    security_answer = models.CharField(max_length=255, default='Robin')
 
     @property
     def get_name(self):

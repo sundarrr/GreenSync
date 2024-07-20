@@ -3,7 +3,7 @@
 {% include 'ecom/v2/base/side_nav.html' %}
 
 <section class="categories">
-    <div class="container">
+    <div class="container" style="max-width: 1280px;">
         <div class="row">
             <div class="col-lg-12">
                 <div class="categories__slider owl-carousel">
@@ -19,7 +19,7 @@
 </section>
 
 <section class="featured spad">
-    <div class="container">
+    <div class="container" style="max-width: 1280px;">
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-title">
@@ -57,7 +57,7 @@
 </section>
 
 <section class="featured spad">
-    <div class="container">
+    <div class="container" style="max-width: 1280px;">
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-title">
@@ -76,7 +76,7 @@
         <div class="row featured__filter">
             {% for category in categories %}
             {% for product in category.product_set.all %}
-            <div class="col-lg-3 col-md-4 col-sm-6 mix {{ category.name }}">
+            <!-- <div class="col-lg-3 col-md-4 col-sm-6 mix {{ category.name }}">
                 <div class="featured__item">
                     <div class="featured__item__pic set-bg" data-setbg="{{ product.product_image.url }}">
                         {% if product.stock > 0 %}
@@ -95,6 +95,26 @@
                         <h5>${{ product.price }}</h5>
                     </div>
                 </div>
+            </div> -->
+            <div class="product-card {{ category.name }}">
+                    <img src="{{ product.product_image.url }}" alt="Product" class="product-image" />
+                    <div class="product-details">
+                        <span class="product-category">{{ category.name }}</span>
+                        <p class="product-name">{{ product.name }}</p>
+                        <div class="product-price-container">
+                            <p class="product-price">${{ product.price }}</p>
+                            <div class="add-to-cart">
+                                {% if product.stock > 0 %}
+                                <a href="{% url 'add-to-cart' product.id %}" style="color: #7fad39;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bag-plus" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
+                                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
+                                </svg></a>
+                                {% else %}
+                                    <span style="color: #ff4d4f;"><i class="fa fa-ban"></i> No Stock</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
             </div>
             {% endfor %}
             {% endfor %}
@@ -103,7 +123,7 @@
 </section>
 
 <section class="featured spad">
-    <div class="container">
+    <div class="container" style="max-width: 1280px;">
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-title">
@@ -127,3 +147,74 @@
 </section>
 
 {% include 'ecom/v2/base/js.html' %}
+
+
+
+<!-- <script src="https://cdn.tailwindcss.com"></script> -->
+
+
+<style>
+    .product-card {
+        width: 12rem;
+        height: 18rem;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 0.75rem;
+        transition: transform 0.5s, box-shadow 0.5s;
+        margin: 10px;
+    }
+    
+
+.product-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.product-image {
+   height: 12rem;
+    width: 12rem;
+    object-fit: cover;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+
+.product-details {
+    padding: 0.2rem 1rem;
+    width: 12rem;
+}
+
+.product-category {
+    color: #9ca3af; /* text-gray-400 */
+    margin-right: 0.75rem; /* 12px */
+    text-transform: uppercase;
+    font-size: 0.75rem; /* 12px */
+}
+
+.product-name {
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: black;
+    margin: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+}
+
+.product-price-container {
+    display: flex;
+    align-items: center;
+}
+
+.product-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: black;
+    cursor: default;
+    margin: 0;
+}
+
+.add-to-cart {
+    margin-left: auto;
+}
+</style>
