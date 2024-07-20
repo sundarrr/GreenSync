@@ -33,6 +33,11 @@ from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .forms import SetNewPasswordForm
 
 from django.http.response import (
     JsonResponse
@@ -135,7 +140,7 @@ def event_view(request):
     context = {
         'events': events,
         'categories': categories,
-        'customer_url': customer_url
+        'customer_url': customer_url,
     }
     return render(request, 'ecom/v2/home/events.html', context)
 
@@ -234,11 +239,6 @@ def security_question(request):
                   {'form': form, 'security_question': customer.get_security_question_display()})
 
 
-from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .forms import SetNewPasswordForm
 
 
 def set_new_password(request):
