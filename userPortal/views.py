@@ -19,12 +19,12 @@ from xhtml2pdf import pisa
 from django.template.loader import get_template, render_to_string
 from django.template import Context
 from django.http import HttpResponse
-
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Comment, Customer, Admin, Product, Orders
 from .forms import CategoryForm, ReplyForm, CommentForm
 from .models import Category, User, Cart, CartProduct
-from .forms import CategoryForm
+from .forms import CategoryForm,UsernameForm, SecurityQuestionForm, SetNewPasswordForm
 from adminPortal.models import Event, EventCategory, EventRegistration
 
 # QA Forum
@@ -200,6 +200,75 @@ def customer_signup_view(request):
     # return render(request,'ecom/customersignup.html',context=mydict)
     return render(request, 'ecom/v2/signup/customer_signup.html', context=mydict)
 
+
+def forgot_password(request):
+    if request.method == 'POST':
+        form = UsernameForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            try:
+                user = User.objects.get(username=username)
+                customer = Customer.objects.get(user=user)
+                request.session['reset_user_id'] = user.id
+                return redirect('security_question')
+            except (User.DoesNotExist, Customer.DoesNotExist):
+                messages.error(request, 'Invalid username')
+    else:
+        form = UsernameForm()
+    return render(request, 'ecom/v2/login/forgot_password.html', {'form': form})
+
+
+def security_question(request):
+    user_id = request.session.get('reset_user_id')
+    if not user_id:
+        return redirect('forgot_password')
+
+    user = get_object_or_404(User, id=user_id)
+    customer = get_object_or_404(Customer, user=user)
+
+    if request.method == 'POST':
+        form = SecurityQuestionForm(request.POST)
+        if form.is_valid():
+            security_answer = form.cleaned_data['security_answer']
+            if security_answer == customer.security_answer:
+                return redirect('set_new_password')
+            else:
+                messages.error(request, 'Incorrect answer')
+    else:
+        form = SecurityQuestionForm()
+
+    return render(request, 'ecom/v2/login/security_question.html',
+                  {'form': form, 'security_question': customer.get_security_question_display()})
+
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .forms import SetNewPasswordForm
+
+
+def set_new_password(request):
+    user_id = request.session.get('reset_user_id')
+    if not user_id:
+        return redirect('forgot_password')
+
+    user = User.objects.get(id=user_id)
+    print(f"User: {user.username}")
+
+    if request.method == 'POST':
+        form = SetNewPasswordForm(user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important, to update the session with the new password
+            messages.success(request, 'Your password has been successfully updated!')
+            return redirect('customerlogin')
+        else:
+            print("Form is not valid")
+    else:
+        form = SetNewPasswordForm(user)
+
+    return render(request, 'ecom/v2/login/set_new_password.html', {'form': form})
 
 def is_customer(user):
     return user.groups.filter(name='CUSTOMER').exists()

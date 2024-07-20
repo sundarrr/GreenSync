@@ -60,29 +60,28 @@
                             <div class="row featured__filter">
 
                                 {% for product in products %}
-                                    <div class="col-lg-3 col-md-4 col-sm-6 mix">
-                                        <div class="featured__item">
-                                            
-                                            <div class="featured__item__pic set-bg" data-setbg="{{ product.product_image.url }}">
-                                                {% if product.stock > 0 %}
-                                                    <ul class="featured__item__pic__hover">
-                                                        
-                                                        <li><a href="{% url 'add-to-cart' product.id %}"><i class="fa fa-shopping-cart"></i></a></li>
-                                                    </ul>
-                                                {% else %}
-                                                    <ul class="featured__item__pic__hover">
-                                                        <li><i class="fa fa-ban"></i> Out of Stock</li>
-                                                    </ul>
-                                                {% endif %}
-                                            </div>
-                                            <div class="featured__item__text"
-                                                 style="padding: 20px; text-align: center;">
-                                                <h6><a href="#"
-                                                       style="color: #000; text-decoration: none;">{{ product.name }}</a></h6>
-                                                <h5>${{ product.price }}</h5>
+                                <div class="product-card {{ category.name }}">
+                                    <a href="#">
+                                        <img src="{{ product.product_image.url }}" alt="Product" class="product-image" />
+                                        <div class="product-details">
+                                            <span class="product-category">{{ category.name }}</span>
+                                            <p class="product-name">{{ product.name }}</p>
+                                            <div class="product-price-container">
+                                                <p class="product-price">${{ product.price }}</p>
+                                                <div class="add-to-cart">
+                                                    {% if product.stock > 0 %}
+                                                    <a href="{% url 'add-to-cart' product.id %}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bag-plus" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
+                                                        <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
+                                                    </svg></a>
+                                                    {% else %}
+                                                    <i class="fa fa-ban"></i> Out of Stock
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </a>
+                                </div>
                                 {% endfor %}
 
                             </div>
@@ -111,6 +110,69 @@
 
 {% include 'ecom/v2/base/footer.html' %}
 {% include 'ecom/v2/base/js.html' %}
+
+<style>
+    .product-card {
+        width: 18rem; /* 72 / 4 = 18 */
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 0.75rem; /* 12px */
+        transition: transform 0.5s, box-shadow 0.5s;
+        margin: 15px;
+    }
+    
+    .product-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-image {
+        height: 18rem;
+        width: 18rem;
+        object-fit: cover;
+        border-top-left-radius: 0.75rem; /* 12px */
+        border-top-right-radius: 0.75rem; /* 12px */
+    }
+    
+    .product-details {
+        padding: 0.75rem 1rem; /* 12px 16px */
+        width: 18rem;
+    }
+    
+    .product-category {
+        color: #9ca3af; /* text-gray-400 */
+        margin-right: 0.75rem; /* 12px */
+        text-transform: uppercase;
+        font-size: 0.75rem; /* 12px */
+    }
+    
+    .product-name {
+        font-size: 1.125rem; /* 18px */
+        font-weight: bold;
+        color: black;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: capitalize;
+    }
+    
+    .product-price-container {
+        display: flex;
+        align-items: center;
+    }
+    
+    .product-price {
+        font-size: 1.125rem; /* 18px */
+        font-weight: 600;
+        color: black;
+        cursor: default;
+        margin: 0.75rem 0; /* 12px 0 */
+    }
+    
+    .add-to-cart {
+        margin-left: auto;
+    }
+    </style>
 </body>
 
 </html>

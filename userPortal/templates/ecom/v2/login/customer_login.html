@@ -25,6 +25,9 @@
                     {% render_field form.password class="form-control" placeholder="Password" %}
                 </div>
                 <div class="form-group text-center">
+                <a href="{% url 'forgot_password' %}" class="text-muted">Forgot Password?</a>
+                </div>
+                <div class="form-group text-center">
                     <input type="submit" class="btn btn-success" value="Login" style="width: 100%;">
                 </div>
             </form>
