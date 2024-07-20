@@ -64,6 +64,8 @@
                             <div class="row featured__filter">
 
                                 {% for product in products %}
+
+                <div class=" mix {{ category.name }}">
                                 <div class="product-card {{ product.category.name }}">
                                     <a href="#">
                                         <img src="{{ product.product_image.url }}" alt="Product" class="product-image" />
@@ -85,6 +87,7 @@
                                             </div>
                                         </div>
                                     </a>
+                                </div>
                                 </div>
                                 {% endfor %}
 
