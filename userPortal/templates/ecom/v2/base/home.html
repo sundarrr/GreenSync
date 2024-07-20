@@ -36,7 +36,8 @@
                 </div>
             </div>
         </div>
-        <div class="row featured__filter">
+        <div class="row featured__filter" style="justify-content: center;">
+
             {% for category in categories %}
             {% for product in category.product_set.all %}
             <!-- <div class="col-lg-3 col-md-4 col-sm-6 mix {{ category.name }}">
@@ -59,7 +60,7 @@
                     </div>
                 </div>
             </div> -->
-                <div class="col-lg-3 col-md-4 col-sm-6 mix {{ category.name }}">
+                <div class=" mix {{ category.name }}">
 
             <div class="product-card {{ category.name }}">
                     <img src="{{ product.product_image.url }}" alt="Product" class="product-image" />

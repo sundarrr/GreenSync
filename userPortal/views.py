@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.dispatch import receiver
 from django.shortcuts import render, redirect, reverse
 from django.views.static import serve
-
+from django.core.exceptions import ValidationError
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -26,13 +26,18 @@ from .forms import CategoryForm, ReplyForm, CommentForm
 from .models import Category, User, Cart, CartProduct
 from .forms import CategoryForm,UsernameForm, SecurityQuestionForm, SetNewPasswordForm
 from adminPortal.models import Event, EventCategory, EventRegistration
-
+from django.core.files.storage import default_storage
 # QA Forum
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .forms import SetNewPasswordForm
 
 from django.http.response import (
     JsonResponse
@@ -83,7 +88,7 @@ def home_view(request):
         print(e)
         return HttpResponseRedirect('dashboard')
 
-
+@login_required(login_url='customerlogin')
 def register_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
@@ -115,6 +120,7 @@ def register_event(request, event_id):
 
     return redirect('events')
 
+
 @login_required
 def cancel_registration(request, event_id):
     event = get_object_or_404(Event, id=event_id)
@@ -139,6 +145,8 @@ def event_view(request):
     event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in
                       events}
 
+    customer = models.Customer.objects.get(user_id=request.user.id)
+    customer_url = customer.profile_pic.url
     events = Event.objects.all()
     if query:
         events = events.filter(name__icontains=query)
@@ -150,6 +158,7 @@ def event_view(request):
     context = {
         'events': events,
         'categories': categories,
+        'customer_url': customer_url,
         'registered_event_ids': registered_event_ids,
         'event_statuses': event_statuses,
     }
@@ -250,11 +259,6 @@ def security_question(request):
                   {'form': form, 'security_question': customer.get_security_question_display()})
 
 
-from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .forms import SetNewPasswordForm
 
 
 def set_new_password(request):
@@ -461,7 +465,7 @@ def search_view(request):
 
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
-                   'product_count_in_cart': product_count_in_cart})
+                   'product_count_in_cart': product_count_in_cart, 'query': query})
 
 
 # def search_view(request):
@@ -980,23 +984,57 @@ def my_profile_view(request):
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
 def edit_profile_view(request):
-    customer = models.Customer.objects.get(user_id=request.user.id)
-    user = models.User.objects.get(id=customer.user_id)
-    userForm = forms.CustomerUserForm(instance=user)
-    customerForm = forms.CustomerForm(request.FILES, instance=customer)
-    mydict = {'userForm': userForm, 'customerForm': customerForm}
+    print("Starting edit_profile_view")
+    customer = get_object_or_404(Customer, user_id=request.user.id)
+    user = get_object_or_404(User, id=customer.user_id)
+    print(f"Fetched customer: {customer}, user: {user}")
+    customer_url = customer.profile_pic.url if customer.profile_pic else None
+    print(f"Customer profile pic URL: {customer_url}")
+
     if request.method == 'POST':
-        userForm = forms.CustomerUserForm(request.POST, instance=user)
-        customerForm = forms.CustomerForm(request.POST, instance=customer)
-        if userForm.is_valid() and customerForm.is_valid():
-            user = userForm.save()
-            user.set_password(user.password)
+        print("POST request received")
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        mobile = request.POST.get('mobile')
+        address = request.POST.get('address')
+        security_question = request.POST.get('security_question')
+        security_answer = request.POST.get('security_answer')
+        profile_pic = request.FILES.get('profile_pic')
+
+        # Update user fields
+        user.first_name = first_name
+        user.last_name = last_name
+        user.username = username
+        user.email = email
+
+        # Update customer fields
+        customer.mobile = mobile
+        customer.address = address
+        customer.security_question = security_question
+        customer.security_answer = security_answer
+        if profile_pic:
+            if customer.profile_pic:
+                default_storage.delete(customer.profile_pic.path)
+            customer.profile_pic = profile_pic
+
+        try:
             user.save()
-            customerForm.save()
-            return HttpResponseRedirect('my-profile')
+            customer.save()
+            print("User and customer information updated successfully")
+            messages.success(request, 'Profile updated successfully')
+            return redirect('my-profile')
+        except ValidationError as e:
+            print(f"Error updating profile: {e}")
+            messages.error(request, f"Error updating profile: {e}")
+
+    else:
+        print("GET request received")
+
+    mydict = {'user': user, 'customer': customer, 'customer_url': customer_url}
+    print(f"Rendering template with context: {mydict}")
     return render(request, 'ecom/v2/profile/edit_profile.html', context=mydict)
-
-
 def dashboard(request):
     categories = models.Category.objects.all()
     top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]

@@ -61,9 +61,11 @@
                     <section class="featured spad" style="padding: 50px 0;">
                         <div class="container" style="max-width: 1200px; margin: 0 auto;">
 
-                            <div class="row featured__filter">
+                            <div class="row featured__filter" style="justify-content: center;">
 
                                 {% for product in products %}
+
+                <div class=" mix {{ category.name }}">
                                 <div class="product-card {{ product.category.name }}">
                                     <a href="#">
                                         <img src="{{ product.product_image.url }}" alt="Product" class="product-image" />
@@ -86,13 +88,14 @@
                                         </div>
                                     </a>
                                 </div>
+                                </div>
                                 {% endfor %}
 
                             </div>
                         </div>
                     </section>
                 {% else %}
-                    <h3 style="text-align: center; color: yellow;">No Search Found</h3>
+                    <h3 style="text-align: center; color: yellow;">No Search Found {{ query }}</h3>
                 {% endif %}
 
 

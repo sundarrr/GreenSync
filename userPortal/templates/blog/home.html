@@ -25,10 +25,9 @@
    
 
     {% if posts %}
-    <p>Posts containing '{{ query_string }}'</p>
         {% for post in posts %}
-            <div class="jumbotron mt-2 bg-white shadow-lg">
-                <article class="media content-section shadow">
+{#            <div class="jumbotron mt-2 bg-white shadow-lg">#}
+                <article class="media content-section shadow-lg">
                     <a href="/media/{{post.author.profile_pic }}" target="_blank">
                         <img src="/media/{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
                     </a>
@@ -46,7 +45,7 @@
                         </div>
                     </div>
                 </article>
-            </div>
+{#            </div>#}
         {% endfor %}
     {% else %}
         <p>No posts found matching '{{ query_string }}'.</p>
