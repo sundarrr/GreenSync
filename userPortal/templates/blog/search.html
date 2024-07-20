@@ -1,6 +1,5 @@
 {% extends 'blog/base.html' %}
 {% block content %}
-<p>Posts containing '{{query_string}}'</p> 
 {% for post in posts %}
     <div>
         <span> {{ post.created }} </span>

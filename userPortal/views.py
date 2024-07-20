@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.dispatch import receiver
 from django.shortcuts import render, redirect, reverse
 from django.views.static import serve
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -33,6 +33,11 @@ from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .forms import SetNewPasswordForm
 
 from django.http.response import (
     JsonResponse
@@ -89,18 +94,30 @@ def register_event(request, event_id):
     user = request.user
 
     if event.registration_count >= event.maximum_attende:
-        messages.error(request, "This event is full. Registration is not possible.")
-        return redirect('events')
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': "This event is full. Registration is not possible."})
+        else:
+            messages.error(request, "This event is full. Registration is not possible.")
+            return redirect('events')
 
     registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
     if created:
-        messages.success(request, f"You have successfully registered for {event.name} event.")
-        send_email(user.email,
-                   'Event Registration Successful',
-                   f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
-
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            send_email(user.email,
+                       'Event Registration Successful',
+                       f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
+            return JsonResponse({'success': True, 'event_name': event.name})
+        else:
+            messages.success(request, f"You have successfully registered for {event.name} event.")
+            send_email(user.email,
+                       'Event Registration Successful',
+                       f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
     else:
-        messages.info(request, f"You are already registered for {event.name} event.")
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': f"You are already registered for {event.name} event."})
+        else:
+            messages.info(request, f"You are already registered for {event.name} event.")
+
     return redirect('events')
 
 
@@ -122,21 +139,34 @@ def cancel_registration(request, event_id):
 def event_view(request):
     query = request.GET.get('query', '')
     category = request.GET.get('category', '')
-
     events = Event.objects.all()
+    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else EventRegistration.objects.none()
+    registered_event_ids = registrations.values_list('event_id', flat=True)
+    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in events}
+
+    customer_url = ''
+    if request.user.is_authenticated:
+        try:
+            customer = models.Customer.objects.get(user_id=request.user.id)
+            customer_url = customer.profile_pic.url
+        except ObjectDoesNotExist:
+            customer_url = ''
+
     if query:
         events = events.filter(name__icontains=query)
     if category:
         events = events.filter(category__name=category)
-    print("events", events)
+
     categories = EventCategory.objects.all()
 
     context = {
         'events': events,
         'categories': categories,
+        'customer_url': customer_url,
+        'registered_event_ids': registered_event_ids,
+        'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
-
 
 def autosuggest_view(request):
     query = request.GET.get('query', '')
@@ -232,11 +262,6 @@ def security_question(request):
                   {'form': form, 'security_question': customer.get_security_question_display()})
 
 
-from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .forms import SetNewPasswordForm
 
 
 def set_new_password(request):
@@ -443,7 +468,7 @@ def search_view(request):
 
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
-                   'product_count_in_cart': product_count_in_cart})
+                   'product_count_in_cart': product_count_in_cart, 'query': query})
 
 
 # def search_view(request):
@@ -1013,6 +1038,8 @@ def edit_profile_view(request):
     mydict = {'user': user, 'customer': customer, 'customer_url': customer_url}
     print(f"Rendering template with context: {mydict}")
     return render(request, 'ecom/v2/profile/edit_profile.html', context=mydict)
+
+
 def dashboard(request):
     categories = models.Category.objects.all()
     top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]
