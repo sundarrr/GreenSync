@@ -31,7 +31,7 @@
                     <a href="/media/{{post.author.profile_pic }}" target="_blank">
                         <img src="/media/{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
                     </a>
-                    <div class="media-body">
+                    <div class="media-body" style="max-width: -webkit-fill-available;">
                         <div class="article-metadata d-flex justify-content-between">
                             <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}"><h3>{{ post.author }}</h3></a>
                             <small class="text-muted">{{ post.date_upload|date:"F d, Y" }}</small>
