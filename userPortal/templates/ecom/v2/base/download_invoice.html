@@ -34,14 +34,20 @@
       width: 100%;
       line-height: inherit;
       text-align: left;
+      border-collapse: collapse; /* Ensure table borders collapse */
     }
 
     .invoice-box table td {
       padding: 5px;
       vertical-align: top;
+      text-align: left;
     }
 
     .invoice-box table tr td:nth-child(2) {
+      text-align: center;
+    }
+
+    .invoice-box table tr td:nth-child(3) {
       text-align: right;
     }
 
@@ -56,7 +62,7 @@
     }
 
     .invoice-box table tr.information table td {
-      padding-bottom: 40px;
+      padding-bottom: 20px;
     }
 
     .invoice-box table tr.heading td {
@@ -80,6 +86,15 @@
     .invoice-box table tr.total td:nth-child(2) {
       border-top: 2px solid #eee;
       font-weight: bold;
+      text-align: right;
+    }
+
+    .centered {
+      text-align: center;
+    }
+
+    .right-aligned {
+      text-align: right;
     }
 
     @media only screen and (max-width: 600px) {
@@ -109,27 +124,48 @@
     .rtl table tr td:nth-child(2) {
       text-align: left;
     }
+
+    .footer {
+      position: fixed;
+      bottom: 0cm;
+      left: 0cm;
+      right: 0cm;
+      height: 2cm;
+      text-align: center;
+      font-size: 12px;
+      color: #555;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+
+    .footer .left {
+      float: left;
+    }
+
+    .footer .right {
+      float: right;
+    }
+
+    .footer .page-number {
+      text-align: right;
+    }
+
+    .footer .page-number:before {
+      content: counter(page);
+    }
   </style>
 </head>
 
 <body>
 
-  <br><br><br>
   <div class="invoice-box">
     <table cellpadding="0" cellspacing="0">
       <tr class="top">
-        <td colspan="2">
+        <td colspan="3">
           <table>
             <tr>
               <td class="title">
-                <h5>EcoGreenMart</h5>
-              </td>
-
-              <td>
-
-
-                Order Date: {{orderDate}}<br>
-
+                <h1>EcoGreenMart</h1>
               </td>
             </tr>
           </table>
@@ -137,62 +173,49 @@
       </tr>
 
       <tr class="information">
-        <td colspan="2">
+        <td colspan="3">
           <table>
             <tr>
               <td>
-                Customer Name : {{customerName}}<br><br>
-                Customer Email : {{customerEmail}}
-
+                <strong>Customer Name:</strong> {{customerName}}<br>
+                <strong>Email:</strong> {{customerEmail}}<br>
+                <strong>Mobile:</strong> {{customerMobile}}<br>
               </td>
-
-              <td>
-                Customer Mobile :{{customerMobile}}<br><br>
-                  Shipment Address :{{shipmentAddress}}
-
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-        {% for product in products %}
-      <tr class="information">
-        <td colspan="2">
-          <table>
-            <tr>
-              <td>
-                Product Image :<br>
-                 <img src="{{  product.product_image.url }}" alt="product picture" height="40px" width="40px" /><br><br>
-                Product Price : {{product.productPrice}}
-              </td>
-              <td>
-                Product Name: {{product.productName}}<br><br>
-                Product Description:  {{product.productDescription}}
-              </td>
-
-            </tr>
-          </table>
-        </td>
-      </tr>
-        {% endfor %}
-    
-      <tr class="information">
-        <td colspan="2">
-          <table>
-            <tr>
-              <td>
-                Order Status : {{orderStatus}}
+              <td class="right-aligned">
+                  <strong>Order ID:</strong>{{OrderID}}<br>
+                  <strong>Shipment Address:</strong>{{shipmentAddress}}<br>
+                  <strong>Order Date:</strong> {{orderDate}}
               </td>
             </tr>
           </table>
         </td>
       </tr>
 
+      <tr class="heading">
+        <td>Product Description</td>
+        <td class="centered">Quantity</td>
+        <td class="right-aligned">Price</td>
+      </tr>
+
+      {% for product in products %}
+      <tr class="item">
+        <td>{{product.productDescription}}</td>
+        <td class="centered">{{product.productQuantity}}</td>
+        <td class="right-aligned">${{product.productPrice}}</td>
+      </tr>
+      {% endfor %}
+
+      <tr class="total">
+        <td colspan="2" class="right-aligned"><strong>Total Price:</strong></td>
+        <td class="right-aligned"><strong>${{ Total }}</strong></td>
+      </tr>
     </table>
   </div>
+<div class="footer">
+    <div class="left">
+      EcoGreenMart, University Ave, Windsor
+    </div>
+  </div>
 </body>
-<!--
-
--->
 
 </html>

@@ -183,13 +183,13 @@ p {
                 </li>
         </ul>
             <ul class="row" style="margin-left:20px;margin-top:20px;">
-            {%for product in order.products.all%}
+            {%for item in order.items.all%}
                 <li class="col-md-4">
                   <figure class="itemside mb-3">
-                      <div class="aside"><img src="{{  product.product_image.url }}" class="img-sm border"></div>
+                      <div class="aside"><img src="{{  item.product.product_image.url }}" class="img-sm border"></div>
                       <figcaption class="info align-self-center">
 
-                          <p class="title"><strong>Name : </strong>{{product.name}} <br> <strong>Description : </strong>{{product.description}}</p> <span class="text-muted"><strong>Price : </strong>{{product.price}} </span>
+                          <p class="title"><strong>Name : </strong>{{item.product.name}} <br> <strong>Description : </strong>{{item.product.description}}</p> <span class="text-muted"><strong>Price : </strong>{{item.product.price}}  <strong>Qty : </strong>{{item.quantity}} </span>
 
                       </figcaption>
                   </figure>
