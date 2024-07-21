@@ -28,10 +28,8 @@
         {% for post in posts %}
 {#            <div class="jumbotron mt-2 bg-white shadow-lg">#}
                 <article class="media content-section shadow-lg">
-                    <a href="/media/{{post.author.profile_pic }}" target="_blank">
-                        <img src="/media/{{ post.author.profile_pic }}" alt="" class="article-img rounded-circle img-thumbnail img-fluid shadow">
-                    </a>
-                    <div class="media-body" style="max-width: -webkit-fill-available;">
+                    <img class="rounded-circle article-img" src="/media/{{ post.author.profile_pic }}">
+                    <div class="media-body" style="max-width: 90%;">
                         <div class="article-metadata d-flex justify-content-between">
                             <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}"><h3>{{ post.author }}</h3></a>
                             <small class="text-muted">{{ post.date_upload|date:"F d, Y" }}</small>
@@ -39,8 +37,9 @@
                         {% if post.file %}
                             <a href="{{ post.file.url }}" download class="text-dark text-justify"><h5>{{ post.blog }}</h5></a>
                         {% endif %}
-                        <h2><a class="article-title text-justify" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-                        <div class="d-flex justify-content-between">
+                        <h3><a class="article-title text-justify" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h3>
+                        <br>
+                        <div class="d-flex justify-content-between" style="margin-right: 50px;">
                             <p class="article-content text-justify text-truncate overflow-hidden">{{ post.content }}</p>
                         </div>
                     </div>
