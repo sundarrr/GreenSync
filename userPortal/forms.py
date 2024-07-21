@@ -53,7 +53,7 @@ class AddressForm(forms.Form):
 # for updating status of order
 class OrderForm(forms.ModelForm):
     class Meta:
-        model = models.Orders
+        model = models.Order
         fields = ['status']
 
 
