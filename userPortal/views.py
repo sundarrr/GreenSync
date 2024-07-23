@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.dispatch import receiver
 from django.shortcuts import render, redirect, reverse
 from django.views.static import serve
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from . import forms, models
 from django.http import HttpResponseRedirect, HttpResponse
 from .smtp import send_email
@@ -21,7 +21,7 @@ from django.template import Context
 from django.http import HttpResponse
 from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Category, Comment, Customer, Admin, Product, Orders
+from .models import Category, Comment, Customer, Admin, Product, Order
 from .forms import CategoryForm, ReplyForm, CommentForm
 from .models import Category, User, Cart, CartProduct
 from .forms import CategoryForm,UsernameForm, SecurityQuestionForm, SetNewPasswordForm
@@ -33,6 +33,11 @@ from .models import Post
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .forms import SetNewPasswordForm
 
 from django.http.response import (
     JsonResponse
@@ -89,18 +94,30 @@ def register_event(request, event_id):
     user = request.user
 
     if event.registration_count >= event.maximum_attende:
-        messages.error(request, "This event is full. Registration is not possible.")
-        return redirect('events')
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': "This event is full. Registration is not possible."})
+        else:
+            messages.error(request, "This event is full. Registration is not possible.")
+            return redirect('events')
 
     registration, created = EventRegistration.objects.get_or_create(event=event, user=user)
     if created:
-        messages.success(request, f"You have successfully registered for {event.name} event.")
-        send_email(user.email,
-                   'Event Registration Successful',
-                   f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
-
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            send_email(user.email,
+                       'Event Registration Successful',
+                       f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
+            return JsonResponse({'success': True, 'event_name': event.name})
+        else:
+            messages.success(request, f"You have successfully registered for {event.name} event.")
+            send_email(user.email,
+                       'Event Registration Successful',
+                       f'Hi {user.username},<br><br>You have successfully registered for the {event.name} event.<br><br>Regards,<br>EcoGreenSmart Team')
     else:
-        messages.info(request, f"You are already registered for {event.name} event.")
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': f"You are already registered for {event.name} event."})
+        else:
+            messages.info(request, f"You are already registered for {event.name} event.")
+
     return redirect('events')
 
 
@@ -122,21 +139,34 @@ def cancel_registration(request, event_id):
 def event_view(request):
     query = request.GET.get('query', '')
     category = request.GET.get('category', '')
-
     events = Event.objects.all()
+    registrations = EventRegistration.objects.filter(user=request.user) if request.user.is_authenticated else EventRegistration.objects.none()
+    registered_event_ids = registrations.values_list('event_id', flat=True)
+    event_statuses = {event.id: 'full' if event.registration_count >= event.maximum_attende else 'open' for event in events}
+
+    customer_url = ''
+    if request.user.is_authenticated:
+        try:
+            customer = models.Customer.objects.get(user_id=request.user.id)
+            customer_url = customer.profile_pic.url
+        except ObjectDoesNotExist:
+            customer_url = ''
+
     if query:
         events = events.filter(name__icontains=query)
     if category:
         events = events.filter(category__name=category)
-    print("events", events)
+
     categories = EventCategory.objects.all()
 
     context = {
         'events': events,
         'categories': categories,
+        'customer_url': customer_url,
+        'registered_event_ids': registered_event_ids,
+        'event_statuses': event_statuses,
     }
     return render(request, 'ecom/v2/home/events.html', context)
-
 
 def autosuggest_view(request):
     query = request.GET.get('query', '')
@@ -232,11 +262,6 @@ def security_question(request):
                   {'form': form, 'security_question': customer.get_security_question_display()})
 
 
-from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .forms import SetNewPasswordForm
 
 
 def set_new_password(request):
@@ -292,14 +317,14 @@ def admin_dashboard_view(request):
     # for cards on dashboard
     customercount = Customer.objects.all().count()
     productcount = Product.objects.all().count()
-    ordercount = Orders.objects.all().count()
+    ordercount = Order.objects.all().count()
 
     # for recent order tables
-    orders = models.Orders.objects.all().order_by('-id')
+    orders = models.Order.objects.all().order_by('-id')
     ordered_products = []
     ordered_bys = []
     for order in orders:
-        ordered_product = order.products.all()
+        ordered_product = order.items.all()
         ordered_by = Customer.objects.all().filter(id=order.customer.id)
         ordered_products.append(ordered_product)
         ordered_bys.append(ordered_by)
@@ -353,11 +378,11 @@ def update_product_view(request, pk):
 
 @login_required(login_url='adminlogin')
 def admin_view_booking_view(request):
-    orders = Orders.objects.all()
+    orders = Order.objects.all()
     data = []
 
     for order in orders:
-        ordered_products = order.products.all()
+        ordered_products = order.items.all()
         ordered_by = Customer.objects.get(id=order.customer.id)
         data.append({
             'order': order,
@@ -370,7 +395,7 @@ def admin_view_booking_view(request):
 
 @login_required(login_url='adminlogin')
 def delete_order_view(request, pk):
-    order = models.Orders.objects.get(id=pk)
+    order = models.Order.objects.get(id=pk)
     order.delete()
     return redirect('admin-view-booking')
 
@@ -393,7 +418,7 @@ def privacy_policy(request):
 # for changing status of order (pending,delivered...)
 @login_required(login_url='adminlogin')
 def update_order_view(request, pk):
-    order = models.Orders.objects.get(id=pk)
+    order = models.Order.objects.get(id=pk)
     orderForm = forms.OrderForm(instance=order)
     if request.method == 'POST':
         orderForm = forms.OrderForm(request.POST, instance=order)
@@ -443,7 +468,7 @@ def search_view(request):
 
     return render(request, 'ecom/v2/home/index.html',
                   {'products': products, 'categories': categories, 'word': word,
-                   'product_count_in_cart': product_count_in_cart})
+                   'product_count_in_cart': product_count_in_cart, 'query': query})
 
 
 # def search_view(request):
@@ -572,7 +597,17 @@ def get_cart(request):
 
 
 def cart_view(request):
-    return render(request, 'ecom/v2/cart/cart.html', get_cart(request))
+    user = User.objects.get(id=request.user.id)
+    customer = Customer.objects.get(user=user)
+    customer_url = customer.profile_pic.url
+
+    # Get the cart context
+    cart_context = get_cart(request)
+
+    # Add customer_url to the context
+    cart_context['customer_url'] = customer_url
+
+    return render(request, 'ecom/v2/cart/cart.html', cart_context)
 
 
 # # any one can add product to cart, no need of signin
@@ -763,7 +798,8 @@ def customer_address_view(request):
     cart = get_cart(request)
     product_in_cart = cart['product_count_in_cart'] > 0
     product_count_in_cart = cart['product_count_in_cart']
-
+    customer = Customer.objects.get(user_id=request.user.id)
+    customer_url = customer.profile_pic.url
     addressForm = forms.AddressForm()
     if request.method == 'POST':
         addressForm = forms.AddressForm(request.POST)
@@ -773,14 +809,14 @@ def customer_address_view(request):
             address = addressForm.cleaned_data['Address']
             total = cart['total']
 
-            response = render(request, 'ecom/v2/cart/payment.html', {'total': total})
+            response = render(request, 'ecom/v2/cart/payment.html', {'total': total,'customer_url':customer_url})
             response.set_cookie('email', email)
             response.set_cookie('mobile', mobile)
             response.set_cookie('address', address)
             return response
     return render(request, 'ecom/v2/cart/customer_address.html',
                   {'addressForm': addressForm, 'product_in_cart': product_in_cart,
-                   'product_count_in_cart': product_count_in_cart})
+                   'product_count_in_cart': product_count_in_cart, 'customer_url':customer_url})
 
 
 @login_required(login_url='customerlogin')
@@ -791,24 +827,31 @@ def payment_success_view(request):
     email = request.COOKIES.get('email')
     mobile = request.COOKIES.get('mobile')
     address = request.COOKIES.get('address')
-
+    customer = Customer.objects.get(user_id=request.user.id)
+    customer_url = customer.profile_pic.url
     try:
         # Create the order
-        order = models.Orders.objects.create(
+        order = models.Order.objects.create(
             customer=customer,
             email=email,
             mobile=mobile,
             address=address,
             status='Pending'
         )
-        order.products.set([cp.product for cp in cart_products])
-        order.save()
+        # Add items to the order and update product stock
+        for cart_product in cart_products:
+            item = models.Item.objects.create(
+                product=cart_product.product,
+                quantity=cart_product.quantity
+            )
+            order.items.add(item)
 
-        # Update stock for each product in the cart
-        for cp in cart_products:
-            product = cp.product
-            product.stock -= cp.quantity
+            # Update stock for each product in the cart
+            product = cart_product.product
+            product.stock -= cart_product.quantity
             product.save()
+
+        order.save()
 
         # Delete the cart products for the customer
         cart_model_instance.cartproduct_set.all().delete()
@@ -818,7 +861,7 @@ def payment_success_view(request):
     except Exception as e:
         print(e)
 
-    response = render(request, 'ecom/v2/cart/payment_success.html')
+    response = render(request, 'ecom/v2/cart/payment_success.html',{'customer_url':customer_url})
     response.delete_cookie('email')
     response.delete_cookie('mobile')
     response.delete_cookie('address')
@@ -885,10 +928,10 @@ def payment_success_view(request):
 #     return render(request, 'ecom/v2/cart/my_order.html', {'data': zip(ordered_products, orders)})
 def my_order_view(request):
     customer = models.Customer.objects.get(user_id=request.user.id)
-    orders = models.Orders.objects.filter(customer_id=customer).order_by('-id')
-
+    orders = models.Order.objects.filter(customer_id=customer).order_by('-id')
+    customer_url = customer.profile_pic.url
     return render(request, 'ecom/v2/cart/my_order.html',
-                  {'orders': orders})
+                  {'orders': orders,'customer_url':customer_url})
 
 
 def render_to_pdf(template_src, context_dict):
@@ -924,22 +967,27 @@ def render_to_pdf(template_src, context_dict):
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
 def download_invoice_view(request, orderID):
-    order = get_object_or_404(models.Orders, id=orderID)
-    products = order.products.all()  # Assuming there's a related name `products` in the Orders model.
+    order = get_object_or_404(models.Order, id=orderID)
+    items = order.items.all()  # Assuming there's a related name `products` in the Orders model.
     print("invoice")
-    for product in products:
-        print(product.name)
+    for product in items:
+        print(product.product.name)
     product_list = []
-    for product in products:
+    site_domain = request.build_absolute_uri('/').strip('/')
+    total=0
+    for item in items:
         product_info = {
-            'productName': product.name,
-            'productImage': product.product_image,
-            'productPrice': product.price,
-            'productDescription': product.description,
+            'productName': item.product.name,
+            'productImage':  site_domain + item.product.product_image.url,
+            'productPrice': item.product.price,
+            'productDescription': item.product.description,
+            'productQuantity': item.quantity,
         }
         product_list.append(product_info)
+        total += item.product.price * item.quantity
 
     mydict = {
+        'OrderID': order.id,
         'orderDate': order.order_date,
         'customerName': request.user,
         'customerEmail': order.email,
@@ -947,6 +995,7 @@ def download_invoice_view(request, orderID):
         'shipmentAddress': order.address,
         'orderStatus': order.status,
         'products': product_list,
+        'Total': total,
     }
 
     return render_to_pdf('ecom/v2/base/download_invoice.html', mydict)
@@ -1013,6 +1062,8 @@ def edit_profile_view(request):
     mydict = {'user': user, 'customer': customer, 'customer_url': customer_url}
     print(f"Rendering template with context: {mydict}")
     return render(request, 'ecom/v2/profile/edit_profile.html', context=mydict)
+
+
 def dashboard(request):
     categories = models.Category.objects.all()
     top_events = Event.objects.annotate(num_registrations=Count('eventmember')).order_by('-num_registrations')[:4]
@@ -1043,16 +1094,25 @@ def add_category_view(request):
 
 
 def update_category_view(request, pk):
-    category = get_object_or_404(Category, pk=pk)
+    category = models.Category.objects.get(id=pk)
+    categoryForm = forms.CategoryForm(instance=category)
     if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
+        categoryForm = CategoryForm(request.POST,request.FILES, instance=category)
+        if categoryForm.is_valid():
+            categoryForm.save()
             return redirect('admin-categories')
-    else:
-        form = CategoryForm(instance=category)
-    return render(request, 'ecom/v2/admin/category/update_category.html', {'form': form})
+    return render(request, 'ecom/v2/admin/category/update_category.html', {'form': categoryForm})
 
+# @login_required(login_url='adminlogin')
+# def update_product_view(request, pk):
+#     product = models.Product.objects.get(id=pk)
+#     productForm = forms.ProductForm(instance=product)
+#     if request.method == 'POST':
+#         productForm = forms.ProductForm(request.POST, request.FILES, instance=product)
+#         if productForm.is_valid():
+#             productForm.save()
+#             return redirect('admin-products')
+#     return render(request, 'ecom/v2/admin/admin_update_product.html', {'productForm': productForm})
 
 # admin view the product
 @login_required(login_url='adminlogin')
@@ -1162,7 +1222,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('blog-home')
     template_name = 'blog/post_confirm_delete.html'
 
     def test_func(self):

@@ -77,7 +77,11 @@ class CartProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
 
-class Orders(models.Model):
+class Item(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
+class Order(models.Model):
     STATUS = (
         ('Pending', 'Pending'),
         ('Order Confirmed', 'Order Confirmed'),
@@ -85,7 +89,8 @@ class Orders(models.Model):
         ('Delivered', 'Delivered')
     )
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE, null=True)
-    products = models.ManyToManyField(Product, blank=True)
+    #products = models.ManyToManyField(Product, blank=True)
+    items= models.ManyToManyField(Item)
     #product = models.ForeignKey('Product', on_delete=models.CASCADE, null=True)
     email = models.CharField(max_length=50, null=True)
     address = models.CharField(max_length=500, null=True)

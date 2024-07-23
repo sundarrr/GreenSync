@@ -50,7 +50,7 @@
                     <table class="nested-table">
                         {% for p in product %}
                         <tr>
-                            <td>{{ p.name }}</td>
+                            <td>{{ p.product.name }}</td>
                         </tr>
                         {% endfor %}
                     </table>
@@ -59,7 +59,7 @@
                     <table class="nested-table">
                         {% for p in product %}
                         <tr>
-                            <td><img src="{{ p.product_image.url }}" alt="product picture" height="40px" width="40px" /></td>
+                            <td><img src="{{ p.product.product_image.url }}" alt="product picture" height="40px" width="40px" /></td>
                         </tr>
                         {% endfor %}
                     </table>

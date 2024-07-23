@@ -4,12 +4,13 @@
     {% for post in posts %}
         <article class="media content-section">
           <img class="rounded-circle article-img" src="/media/{{ post.author.profile_pic }}">
-          <div class="media-body">
+          <div class="media-body" style="max-width: 90%;">
             <div class="article-metadata">
               <a class="mr-2" href="{% url 'user-posts' post.author.user.username %}">{{ post.author }}</a>
               <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
             </div>
-            <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+            <h3><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h3>
+              <br>
             <p class="article-content">{{ post.content }}</p>
           </div>
         </article>
