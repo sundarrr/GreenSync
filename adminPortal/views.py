@@ -244,27 +244,6 @@ class CompleteEventList(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Event.objects.filter(status='completed')
 
-
-# class AbsenseUserList(LoginRequiredMixin, ListView):
-#     login_url = 'login'
-#     model = EventMember
-#     template_name = 'events/absense_user_list.html'
-#     context_object_name = 'absenseuser'
-#
-#     def get_queryset(self):
-#         return EventMember.objects.filter(attend_status='absent')
-
-
-# class CompleteEventUserList(LoginRequiredMixin, ListView):
-#     login_url = 'login'
-#     model = EventMember
-#     template_name = 'events/complete_event_user_list.html'
-#     context_object_name = 'completeuser'
-#
-#     def get_queryset(self):
-#         return EventMember.objects.filter(attend_status='completed')
-
-
 class CreateUserMark(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = UserCoin
