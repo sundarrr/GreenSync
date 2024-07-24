@@ -2,9 +2,45 @@
 Team Members: Saravanan, Sundar, Rakul, Riya
 
 # Checkout our website
-<a href="https://ecogreenmart.in">
+<h2><a href="https://ecogreenmart.in">
 https://ecogreenmart.in
-</a>
+</a></h2>
+<h3>Deployed in Digital Ocean</h3>
+<h3>Linux, Ubuntu, 1GB Ram Server</h3>
+
+# Dashboard
+![Community Page](Dashboard1.gif)
+![Community Page](Dashboard2.gif)
+
+# Cart
+![Community Page](cart1.gif)
+
+# Autosuggest
+![Community Page](autosuggest.gif)
+
+# Community
+![Community Page](community.gif)
+
+# Profiles and Orders
+![Community Page](profileandorders.gif)
+
+# Payment Success
+![Community Page](paymentsuccess.gif)
+
+# Events
+![Community Page](events.gif)
+
+# Admin Portal
+
+# Orders Admin
+![Community Page](ordersadmin.gif)
+
+# Event List
+![Community Page](eventlistadmin.gif)
+
+# Products Admin
+![Community Page](productsadmin.gif)
+
 
 
 # Loading and Dumping Data with Django Fixtures
