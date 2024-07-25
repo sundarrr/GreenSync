@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ["127.0.0.1","ecogreenmart.in","www.ecogreenmart.in"]
 CSRF_TRUSTED_ORIGINS = [
     'https://ecogreenmart.in',
     'https://www.ecogreenmart.in'
+    'http://127.0.0.1:8000/'
 ]
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

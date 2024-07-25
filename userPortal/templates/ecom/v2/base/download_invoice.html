@@ -161,7 +161,7 @@
   <div class="invoice-box">
     <table cellpadding="0" cellspacing="0">
       <tr class="top">
-        <td colspan="3">
+        <td colspan="4">
           <table>
             <tr>
               <td class="title">
@@ -173,7 +173,7 @@
       </tr>
 
       <tr class="information">
-        <td colspan="3">
+        <td colspan="4">
           <table>
             <tr>
               <td>
@@ -192,22 +192,31 @@
       </tr>
 
       <tr class="heading">
-        <td>Product Description</td>
+          <td>Product</td>
+        <td>Description</td>
         <td class="centered">Quantity</td>
         <td class="right-aligned">Price</td>
       </tr>
 
       {% for product in products %}
       <tr class="item">
+      <td><img src="{{ product.productImage }}" alt="Product Image" style="width:100px;height:auto;"></td>
         <td>{{product.productDescription}}</td>
         <td class="centered">{{product.productQuantity}}</td>
         <td class="right-aligned">${{product.productPrice}}</td>
       </tr>
       {% endfor %}
-
+        <tr class="total">
+        <td colspan="3" class="right-aligned"><strong>SUB TOTAL</strong></td>
+        <td class="right-aligned"><strong>${{ subTotal }}</strong></td>
+      </tr>
+    <tr class="total">
+        <td colspan="3" class="right-aligned"><strong>TOTAL TAX</strong></td>
+        <td class="right-aligned"><strong>${{ taxAmount }}</strong></td>
+      </tr>
       <tr class="total">
-        <td colspan="2" class="right-aligned"><strong>Total Price:</strong></td>
-        <td class="right-aligned"><strong>${{ Total }}</strong></td>
+        <td colspan="3" class="right-aligned"><strong>TOTAL</strong></td>
+        <td class="right-aligned"><strong>${{ total }}</strong></td>
       </tr>
     </table>
   </div>

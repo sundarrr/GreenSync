@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib import admin
 
+# Importing views for the URL patterns
 from .views import (
     EventCategoryListView,
     EventCategoryCreateView,
@@ -23,9 +24,12 @@ from .views import (
     UserMarkList,
     search_event_category,
     search_event,
-    create_event, registration_details_view, event_user_details_view,
+    create_event,
+    registration_details_view,
+    event_user_details_view,
 )
 
+# Defining URL patterns for the views
 urlpatterns = [
     path('registration-details/', registration_details_view, name='registration-details'),
     path('event-user-details/<int:event_id>/', event_user_details_view, name='event-user-details'),
@@ -36,8 +40,8 @@ urlpatterns = [
     path('event-create/', EventCreateView.as_view(), name='event-create'),
     path('event-list/', EventListView.as_view(), name='event-list'),
     path('event/<int:pk>/edit/', EventUpdateView.as_view(), name='event-edit'),
-    path('detail/<int:pk>', EventDetailView.as_view(), name='event-detail'),
-    path('delete/<int:pk>', EventDeleteView.as_view(), name='event-delete'),
+    path('detail/<int:pk>/', EventDetailView.as_view(), name='event-detail'),
+    path('delete/<int:pk>/', EventDeleteView.as_view(), name='event-delete'),
     path('add-event-member/', AddEventMemberCreateView.as_view(), name='add-event-member'),
     path('join-event-list/', JoinEventListView.as_view(), name='join-event-list'),
     path('event-member/<int:pk>/remove/', RemoveEventMemberDeleteView.as_view(), name='remove-event-member'),
