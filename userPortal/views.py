@@ -28,6 +28,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from .forms import SetNewPasswordForm
+from decimal import Decimal
 
 from django.http.response import (
     JsonResponse
@@ -475,6 +476,11 @@ def get_cart(request):
     cart = get_object_or_404(Cart, customer=thisCustomer)
     cart_products = CartProduct.objects.filter(cart=cart)
     total = sum(cp.product.price * cp.quantity for cp in cart_products)
+    total = Decimal(total) # Multiply using Decimal
+    tax_rate = Decimal('0.13')  # Use a string to initialize the Decimal
+    tax_amount = total * tax_rate
+    total = total + tax_amount
+    total = total.quantize(Decimal('0.00'))
     product_count_in_cart = len(cart_products)
     out_of_stock_products = []
     for cp in cart_products:
@@ -482,6 +488,7 @@ def get_cart(request):
             out_of_stock_products.append(cp.product)
     context = {
         'products': cart_products,
+        'tax_amount': tax_amount,
         'total': total,
         'product_count_in_cart': product_count_in_cart,
         'out_of_stock_products': out_of_stock_products
@@ -530,8 +537,12 @@ def customer_address_view(request):
             email = addressForm.cleaned_data['Email']
             mobile = addressForm.cleaned_data['Mobile']
             address = addressForm.cleaned_data['Address']
+            cart_details = Cart.objects.get(customer=customer)
+            cart_details.email = email
+            cart_details.mobile = mobile
+            cart_details.address= address
+            cart_details.save()
             total = cart['total']
-
             response = render(request, 'ecom/v2/cart/payment.html', {'total': total,'customer_url':customer_url})
             response.set_cookie('email', email)
             response.set_cookie('mobile', mobile)
@@ -610,6 +621,8 @@ def download_invoice_view(request, orderID):
     product_list = []
     site_domain = request.build_absolute_uri('/').strip('/')
     total=0
+    sub_total=0
+    tax_amount=0
     for item in items:
         product_info = {
             'productName': item.product.name,
@@ -619,7 +632,12 @@ def download_invoice_view(request, orderID):
             'productQuantity': item.quantity,
         }
         product_list.append(product_info)
-        total += item.product.price * item.quantity
+        sub_total += item.product.price * item.quantity
+        total = Decimal(sub_total)  # Multiply using Decimal
+        tax_rate = Decimal('0.13')  # Use a string to initialize the Decimal
+        tax_amount = total * tax_rate
+        tax_amount = tax_amount.quantize(Decimal('0.00'))
+        total = total.quantize(Decimal('0.00'))
 
     mydict = {
         'OrderID': order.id,
@@ -630,7 +648,9 @@ def download_invoice_view(request, orderID):
         'shipmentAddress': order.address,
         'orderStatus': order.status,
         'products': product_list,
-        'Total': total,
+        'subTotal': sub_total,
+        'taxAmount': tax_amount,
+        'total': total,
     }
 
     return render_to_pdf('ecom/v2/base/download_invoice.html', mydict)
