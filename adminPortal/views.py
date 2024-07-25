@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+# Importing necessary Django views and models
 from django.db.models import Count
 from django.utils.timezone import now
 from django.views.generic import (
@@ -12,17 +13,14 @@ from django.views.generic import (
 )
 from adminPortal.models import EventRegistration
 
+# Importing additional Django utilities
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-
 from django.contrib.auth.models import User
 from .forms import LoginForm, EventForm, EventImageForm, EventAgendaForm, EventCreateMultiForm
-
 from .models import (
     EventCategory,
     Event,
@@ -31,9 +29,11 @@ from .models import (
     UserCoin
 )
 
+# Function to check if the user is an admin
 def is_admin(user):
     return user.is_staff
 
+# View to display registration details
 @login_required
 @user_passes_test(is_admin)
 def registration_details_view(request):
@@ -43,6 +43,7 @@ def registration_details_view(request):
     }
     return render(request, 'events/registration_details.html', context)
 
+# View to display user details for a specific event
 @login_required
 @user_passes_test(is_admin)
 def event_user_details_view(request, event_id):
@@ -62,6 +63,7 @@ class EventCategoryListView(LoginRequiredMixin, ListView):
     context_object_name = 'event_category'
 
 
+# Event category create view
 class EventCategoryCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = EventCategory
@@ -75,15 +77,16 @@ class EventCategoryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# Event category update view
 class EventCategoryUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'login'
     model = EventCategory
-    # fields = ['name', 'code', 'image', 'priority', 'status']
     fields = ['name', 'code', 'image']
     template_name = 'events/edit_event_category.html'
     success_url = reverse_lazy('event-category-list')
 
 
+# Event category delete view
 class EventCategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = EventCategory
@@ -91,6 +94,7 @@ class EventCategoryDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('event-category-list')
 
 
+# View to create an event
 @login_required(login_url='login')
 def create_event(request):
     event_form = EventForm()
@@ -121,6 +125,7 @@ def create_event(request):
     return render(request, 'events/create_event.html', context)
 
 
+# Event create view using MultiModelForm
 class EventCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     form_class = EventCreateMultiForm
@@ -141,11 +146,11 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['ctg'] = EventCategory.objects.all()
         return context
 
 
+# Event list view
 class EventListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = Event
@@ -153,6 +158,7 @@ class EventListView(LoginRequiredMixin, ListView):
     context_object_name = 'events'
 
 
+# Event update view
 class EventUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'login'
     model = Event
@@ -161,6 +167,7 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'events/edit_event.html'
 
 
+# Event detail view
 class EventDetailView(LoginRequiredMixin, DetailView):
     login_url = 'login'
     model = Event
@@ -168,6 +175,7 @@ class EventDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'event'
 
 
+# Event delete view
 class EventDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = Event
@@ -175,11 +183,11 @@ class EventDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('event-list')
 
 
+# View to add an event member
 class AddEventMemberCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = EventMember
     fields = ['event', 'user', 'status']
-    # fields = ['event', 'user', 'attend_status', 'status']
     template_name = 'events/add_event_member.html'
 
     def form_valid(self, form):
@@ -188,6 +196,7 @@ class AddEventMemberCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# View to list joined events
 class JoinEventListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = EventMember
@@ -195,6 +204,7 @@ class JoinEventListView(LoginRequiredMixin, ListView):
     context_object_name = 'eventmember'
 
 
+# View to remove an event member
 class RemoveEventMemberDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = EventMember
@@ -202,6 +212,7 @@ class RemoveEventMemberDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('join-event-list')
 
 
+# View to list events in the user's wish list
 class EventUserWishListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = EventUserWishList
@@ -209,6 +220,7 @@ class EventUserWishListView(LoginRequiredMixin, ListView):
     context_object_name = 'eventwish'
 
 
+# View to add an event to the user's wish list
 class AddEventUserWishListCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = EventUserWishList
@@ -221,6 +233,7 @@ class AddEventUserWishListCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# View to remove an event from the user's wish list
 class RemoveEventUserWishDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = EventUserWishList
@@ -228,6 +241,7 @@ class RemoveEventUserWishDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('event-wish-list')
 
 
+# View to update event status
 class UpdateEventStatusView(LoginRequiredMixin, UpdateView):
     login_url = 'login'
     model = Event
@@ -235,6 +249,7 @@ class UpdateEventStatusView(LoginRequiredMixin, UpdateView):
     template_name = 'events/update_event_status.html'
 
 
+# View to list completed events
 class CompleteEventList(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = Event
@@ -244,6 +259,8 @@ class CompleteEventList(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Event.objects.filter(status='completed')
 
+
+# View to create user marks
 class CreateUserMark(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = UserCoin
@@ -256,6 +273,7 @@ class CreateUserMark(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# View to list user marks
 class UserMarkList(LoginRequiredMixin, ListView):
     login_url = 'login'
     model = UserCoin
@@ -263,6 +281,7 @@ class UserMarkList(LoginRequiredMixin, ListView):
     context_object_name = 'usermark'
 
 
+# View to search event categories
 @login_required(login_url='login')
 def search_event_category(request):
     if request.method == 'POST':
@@ -275,11 +294,12 @@ def search_event_category(request):
     return render(request, 'events/event_category.html')
 
 
+# View to search events
 @login_required(login_url='login')
 def search_event(request):
     if request.method == 'POST':
         data = request.POST['search']
-        events = Event.objects.filter(name__icontains=data)
+        events = Event.objects.filter(name__icontains(data))
         context = {
             'events': events
         }
@@ -287,6 +307,7 @@ def search_event(request):
     return render(request, 'events/event_list.html')
 
 
+# View to display dashboard
 @login_required
 @user_passes_test(is_admin)
 def dashboard(request):
@@ -305,6 +326,7 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
+# View for login page
 def login_page(request):
     forms = LoginForm()
     if request.method == 'POST':
@@ -321,6 +343,7 @@ def login_page(request):
     }
     return render(request, 'login.html', context)
 
+# View for logout page
 def logut_page(request):
     logout(request)
     return redirect('login')
