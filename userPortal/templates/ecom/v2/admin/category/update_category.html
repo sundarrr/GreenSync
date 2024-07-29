@@ -12,23 +12,36 @@
 <body>
 
 {% include 'ecom/v2/base/header_admin.html' %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="container register-form">
+    <div class="form">
+        <br>
+      <div class="note">
+        <h3>UPDATE CATEGORY</h3>
+      </div>
+        <br>
+      <div class="form-content">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              {% render_field form.name class="form-control" placeholder="Category Name" %}
+            </div>
+            <div class="form-group">
+              {% render_field form.description class="form-control" placeholder="Description" %}
+            </div>
+              <div class="form-group">
+              {% render_field form.category_image class="form-control" placeholder="category_image" %}
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success btnSubmit">Update</button>
+      </div>
+    </div>
+  </div>
+</form>
 
-<div style="width: 100%;text-align: -webkit-center;">
-<div style="max-width: 970px">
-{% include 'ecom/v2/admin/admin_dashboard_cards.html' %}
-</div></div>
-<br><br>
-<br><br>
-<br><br>
 
-{% block content %}
-  <h2>Update Category</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Update</button>
-  </form>
-{% endblock %}
 <br><br>
 {% include 'ecom/v2/base/footer.html' %}
 {% include 'ecom/v2/base/js.html' %}
