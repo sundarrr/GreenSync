@@ -3,9 +3,21 @@
 {% block breadcrumb %}Dashboard{% endblock breadcrumb %}
 
 {% block content %}
+<style>
+    .admin-panel-bg {
+        background-color: #516573; /* Change this to the color of your admin panel */
+        color: white;
+    }
+    .admin-panel-bg .inner h3,
+    .admin-panel-bg .inner p,
+    .admin-panel-bg .icon i,
+    .admin-panel-bg .small-box-footer {
+        color: white;
+    }
+</style>
 <div class="row">
-    <div class="col-lg-3 col-6">
-      <div class="small-box bg-info">
+    <div class="col-lg-6 col-12">
+      <div class="small-box admin-panel-bg">
         <div class="inner">
           <h3>{{ event_ctg|default:"0" }}</h3>
           <p>Event Category</p>
@@ -16,8 +28,8 @@
         <a href="{% url 'event-category-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <div class="col-lg-3 col-6">
-      <div class="small-box bg-success">
+    <div class="col-lg-6 col-12">
+      <div class="small-box admin-panel-bg">
         <div class="inner">
           <h3>{{ event|default:"0" }}</h3>
           <p>Events</p>
@@ -28,8 +40,8 @@
         <a href="{% url 'event-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <div class="col-lg-3 col-6">
-      <div class="small-box bg-warning">
+    <div class="col-lg-6 col-12">
+      <div class="small-box admin-panel-bg">
         <div class="inner">
           <h3>{{ user|default:"0" }}</h3>
           <p>User Registrations</p>
@@ -40,8 +52,8 @@
         <a href="{% url 'registration-details' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <div class="col-lg-3 col-6">
-      <div class="small-box bg-danger">
+    <div class="col-lg-6 col-12">
+      <div class="small-box admin-panel-bg">
         <div class="inner">
           <h3>{{ complete_event|default:"0" }}</h3>
           <p>Completed Events</p>
